@@ -1,0 +1,769 @@
+<title>Data Code Drills</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: three-pane workbench — skill path | brief | editor over console; stacks on narrow screens */
+:root{
+  --bg:#f3f4f7; --panel:#ffffff; --sunk:#eceef3; --fg:#1b2030; --muted:#5d6478; --line:#d9dce5;
+  --accent:#2f54eb; --accent-fg:#ffffff; --pass:#1d7a4f; --pass-bg:#e3f3ea; --fail:#b3261e; --fail-bg:#fbe7e5; --warn-bg:#fff4dc; --warn:#8a5a00;
+  --code-bg:#161a26; --code-fg:#e4e7f0;
+  --sql:#0e7c7b; --py:#a86b00; --r:#2462c9; --sas:#7646c2;
+  --sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f121a; --panel:#171b26; --sunk:#1e2330; --fg:#e6e8ef; --muted:#9aa1b5; --line:#2a3040;
+  --accent:#6d8bff; --accent-fg:#0b0e16; --pass:#5fd39a; --pass-bg:#15301f; --fail:#ff8a80; --fail-bg:#3a1a18; --warn-bg:#33270f; --warn:#f0c062;
+  --code-bg:#0b0e15; --code-fg:#e4e7f0;
+  --sql:#3cc2bf; --py:#e2a93b; --r:#6fa0ff; --sas:#b28cf5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f121a; --panel:#171b26; --sunk:#1e2330; --fg:#e6e8ef; --muted:#9aa1b5; --line:#2a3040;
+  --accent:#6d8bff; --accent-fg:#0b0e16; --pass:#5fd39a; --pass-bg:#15301f; --fail:#ff8a80; --fail-bg:#3a1a18; --warn-bg:#33270f; --warn:#f0c062;
+  --code-bg:#0b0e15; --code-fg:#e4e7f0;
+  --sql:#3cc2bf; --py:#e2a93b; --r:#6fa0ff; --sas:#b28cf5; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.55 var(--sans);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px}
+button{font:inherit;cursor:pointer;color:inherit}
+button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+code,pre,textarea{font-family:var(--mono)}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.brand h1{margin:0;font-size:1.35rem;font-weight:700;letter-spacing:-.01em}
+.brand span{color:var(--muted);font-size:.9rem}
+.progress{display:flex;gap:6px;flex-wrap:wrap}
+.pchip{font:500 .78rem/1 var(--mono);padding:6px 9px;border-radius:6px;background:var(--panel);border:1px solid var(--line);color:var(--muted);font-variant-numeric:tabular-nums}
+.pchip b{color:var(--fg);font-weight:500}
+.app{display:grid;grid-template-columns:260px minmax(0,1fr) minmax(0,1.2fr);gap:14px;align-items:start}
+@media (max-width:1150px){.app{grid-template-columns:240px minmax(0,1fr)}.work{grid-column:1/-1}}
+@media (max-width:720px){.app{grid-template-columns:minmax(0,1fr)}}
+.side,.brief,.work{background:var(--panel);border:1px solid var(--line);border-radius:10px;min-width:0}
+.side{padding:10px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:10px}
+.tab{border:1px solid var(--line);background:var(--sunk);color:var(--muted);border-radius:6px;padding:6px 0;font-weight:600;font-size:.84rem}
+.tab[aria-selected="true"]{background:var(--lang);border-color:var(--lang);color:#fff}
+.sidehead{display:flex;justify-content:space-between;align-items:baseline;margin:2px 4px 6px;font:600 .72rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.skills{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.skill{width:100%;display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center;text-align:left;background:none;border:0;border-radius:6px;padding:8px}
+.skill:hover{background:var(--sunk)}
+.skill[aria-expanded="true"]{background:var(--sunk);box-shadow:inset 3px 0 0 var(--lang)}
+.skill .nm{font-weight:600;font-size:.92rem}
+.skill small{grid-column:1/-1;color:var(--muted);font-size:.76rem;font-variant-numeric:tabular-nums}
+.pips{display:flex;gap:3px}
+.pip{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--lang);background:transparent}
+.pip.on{background:var(--lang)}
+.donemark{font:600 .72rem var(--mono);color:var(--pass)}
+.plist{list-style:none;margin:2px 0 8px;padding:0 0 0 8px;display:flex;flex-direction:column;gap:1px}
+.pitem{width:100%;display:grid;grid-template-columns:18px 1fr auto;gap:6px;align-items:center;text-align:left;background:none;border:0;border-radius:5px;padding:5px 6px;font-size:.84rem}
+.pitem:hover{background:var(--sunk)}
+.pitem[aria-current="true"]{background:var(--sunk);font-weight:600}
+.pitem .ck{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:.62rem;color:var(--panel)}
+.pitem .ck.s{background:var(--pass);border-color:var(--pass)}
+.pitem .ck.h{background:var(--muted);border-color:var(--muted)}
+.pitem .lv{font:.7rem var(--mono);color:var(--muted)}
+.pitem .tt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.brief{padding:18px 20px}
+.eyebrow{font:600 .72rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--lang)}
+.brief h2{margin:4px 0 10px;font-size:1.3rem;line-height:1.25;text-wrap:balance}
+.brief p,.brief ol,.brief ul{margin:0 0 10px;max-width:68ch}
+.brief h3{margin:18px 0 6px;font-size:.78rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.brief code{background:var(--sunk);padding:1px 5px;border-radius:4px;font-size:.86em}
+.brief pre{background:var(--sunk);padding:10px 12px;border-radius:6px;overflow-x:auto;font-size:.8rem;margin:0 0 10px}
+.brief pre code{background:none;padding:0}
+.note{color:var(--muted);font-size:.88rem}
+.adapt{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border-radius:8px;background:var(--warn-bg);color:var(--warn);font-size:.88rem;margin-bottom:12px}
+.adapt[hidden]{display:none}
+.rowbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.ghost{background:none;border:1px solid var(--line);color:var(--fg);border-radius:6px;padding:6px 11px;font-size:.86rem}
+.ghost:hover{background:var(--sunk)}
+.ghost:disabled{opacity:.55;cursor:progress}
+.reveal{margin-top:10px;border-left:3px solid var(--lang);padding:8px 12px;background:var(--sunk);border-radius:0 6px 6px 0;font-size:.92rem}
+.reveal pre{background:var(--panel)}
+details.explain{margin-top:12px;border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+details.explain summary{cursor:pointer;font-weight:600;font-size:.9rem}
+.work{overflow:hidden;display:flex;flex-direction:column}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.file{font:500 .82rem var(--mono);color:var(--muted)}
+.btns{display:flex;gap:6px;flex-wrap:wrap}
+.run{background:var(--sunk);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 12px;font-weight:600;font-size:.86rem}
+.submit{background:var(--accent);color:var(--accent-fg);border:1px solid var(--accent);border-radius:6px;padding:6px 14px;font-weight:600;font-size:.86rem}
+.run:disabled,.submit:disabled{opacity:.55;cursor:progress}
+textarea#editor{display:block;width:100%;min-height:300px;resize:vertical;border:0;margin:0;padding:14px 16px;background:var(--code-bg);color:var(--code-fg);font-size:.86rem;line-height:1.6;tab-size:4;white-space:pre;overflow:auto}
+.console{border-top:1px solid var(--line);min-height:170px;max-height:520px;overflow:auto;padding:12px 14px;background:var(--panel)}
+.console .label{font:600 .72rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.kbd{font:400 .7rem var(--mono);letter-spacing:0;text-transform:none}
+.out{margin:0;font:.82rem/1.55 var(--mono);white-space:pre-wrap;word-break:break-word}
+.out.scroll{white-space:pre;overflow-x:auto}
+.out.err{color:var(--fail)}
+.muted{color:var(--muted)}
+.verdict{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:8px;margin-bottom:10px;font-size:.92rem}
+.verdict.pass{background:var(--pass-bg);color:var(--pass)}
+.verdict.fail{background:var(--fail-bg);color:var(--fail)}
+.verdict strong{display:block}
+.verdict .fb{color:var(--fg);margin-top:2px}
+.verdict .fb code{font-size:.85em}
+.nextrow{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.go{background:var(--accent);color:var(--accent-fg);border:1px solid var(--accent);border-radius:6px;padding:7px 12px;font-weight:600;font-size:.86rem;text-align:left}
+.go small{display:block;font-weight:400;opacity:.85;font-size:.76rem}
+.go.alt{background:var(--panel);color:var(--fg);border-color:var(--line)}
+.sec{font:600 .72rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:10px 0 4px}
+.tbl-wrap{overflow-x:auto;margin-bottom:6px}
+table.res{border-collapse:collapse;font:.8rem var(--mono);font-variant-numeric:tabular-nums}
+table.res th,table.res td{border:1px solid var(--line);padding:3px 8px;text-align:left;white-space:nowrap}
+table.res th{background:var(--sunk);font-weight:500}
+.tag{display:inline-block;font:500 .7rem var(--mono);padding:2px 6px;border-radius:4px;background:var(--sunk);color:var(--muted);margin-left:6px;vertical-align:middle}
+footer{margin-top:16px;color:var(--muted);font-size:.8rem;max-width:110ch}
+footer a{color:inherit}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="brand"><h1>Data Code Drills</h1><span>Adaptive SQL, pandas, R and SAS practice</span></div>
+  <div class="progress" id="progress"></div>
+</header>
+
+<div class="app">
+  <nav class="side" aria-label="Skills">
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="sidehead"><span>Your path</span><span>level</span></div>
+    <ul class="skills" id="skills"></ul>
+  </nav>
+
+  <section class="brief" id="brief" aria-live="polite"></section>
+
+  <section class="work">
+    <div class="bar">
+      <span class="file" id="fileName">query.sql</span>
+      <div class="btns">
+        <button class="ghost" id="resetBtn" type="button">Reset code</button>
+        <button class="run" id="runBtn" type="button">Run</button>
+        <button class="submit" id="submitBtn" type="button">Submit</button>
+      </div>
+    </div>
+    <textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Code editor"></textarea>
+    <div class="console">
+      <div class="label"><span>Console</span><span class="kbd">Ctrl/⌘+Enter runs · Shift+Ctrl/⌘+Enter submits</span></div>
+      <div id="console"></div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  Questions adapted from open sources, with thanks:
+  SQL from <a href="https://pgexercises.com" target="_blank" rel="noopener">PostgreSQL Exercises</a> by Alisdair Owens (CC BY-SA 3.0), ported to SQLite;
+  pandas from <a href="https://github.com/ajcr/100-pandas-puzzles" target="_blank" rel="noopener">100 pandas puzzles</a> by Alex Riley (MIT);
+  R from Software Carpentry's <a href="https://swcarpentry.github.io/r-novice-gapminder/" target="_blank" rel="noopener">R for Reproducible Scientific Analysis</a> (CC BY 4.0);
+  SAS from SAS Institute's <a href="https://github.com/sascommunities/sas-prog-for-r-users" target="_blank" rel="noopener">SAS Programming for R Users</a> (CC BY 4.0).
+  Problems marked "original" and Claude-generated problems are new. Progress is saved in this browser only.
+</footer>
+
+<script type="application/json" id="bankData">/*__BANK__*/</script>
+<script>
+"use strict";
+/* ================= Catalog ================= */
+const BANK = JSON.parse(document.getElementById("bankData").textContent);
+const LANGS = {
+  sql:{label:"SQL", file:"query.sql", engine:"run"},
+  py:{label:"pandas", file:"analysis.py", engine:"run"},
+  r:{label:"R", file:"analysis.R", engine:"claude"},
+  sas:{label:"SAS", file:"program.sas", engine:"claude"}
+};
+const SKILLS = {
+  sql:[["retrieve","Retrieving data"],["joins","Joins & subqueries"],["agg","Aggregation"],["window","Window functions & recursion"],["text","Text functions"],["dates","Dates & times"]],
+  py:[["select","Selecting & filtering"],["modify","Changing data"],["group","Grouping & sorting"],["stats","Statistics"],["clean","Cleaning messy data"],["time","Dates & time series"],["multi","MultiIndex"]],
+  r:[["vectors","Vectors & subsetting"],["frames","Data frames"],["dplyr","dplyr & tidyr"],["funcs","Functions & loops"],["stats","Statistics"]],
+  sas:[["datastep","DATA step basics"],["newvars","Creating variables"],["procs","Summaries & reports"],["sql","PROC SQL"],["loops","DO loops & simulation"],["stats","Statistical procedures"]]
+};
+const LEVEL_NAME = {1:"Foundations",2:"Practice",3:"Challenge"};
+const SRC_NAME = {pgx:"PostgreSQL Exercises (adapted)",ajcr:"100 pandas puzzles (adapted)",swc:"Software Carpentry (adapted)",sp4r:"SAS Programming for R Users (adapted)",own:"original",gen:"generated by Claude"};
+const skillName = (lang,id)=> (SKILLS[lang].find(s=>s[0]===id)||[id,id])[1];
+
+/* ================= State (this browser only) ================= */
+const store = {
+  get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch{return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+};
+const S = Object.assign({solved:{},fails:{},used:{},level:{},done:{},gen:[],cur:{},lang:"sql",open:{}}, store.get("cd2.state",{}));
+const drafts = store.get("cd2.drafts",{});
+const save = ()=>store.set("cd2.state",S);
+const all = ()=>BANK.concat(S.gen);
+const byId = id=>all().find(p=>p.id===id);
+const pool = (lang,skill)=>all().filter(p=>p.lang===lang && p.skill===skill);
+const key = (lang,skill)=>lang+":"+skill;
+const levelOf = (lang,skill)=>S.level[key(lang,skill)]||1;
+
+/* ================= Adaptive engine ================= */
+function firstOpen(list, lv, exclude){ return list.find(p=>p.level===lv && !S.solved[p.id] && p.id!==exclude) || null; }
+// Recommend the next problem for a skill at the learner's level; climbs or descends to the nearest level with unsolved work.
+function recommendIn(lang, skill, exclude){
+  const list = pool(lang,skill), lv = levelOf(lang,skill);
+  for (const l of [lv, lv+1, lv+2, lv-1, lv-2]) { if(l<1||l>3) continue; const p=firstOpen(list,l,exclude); if(p) return p; }
+  return null;
+}
+function recommend(lang, preferSkill, exclude){
+  const order = SKILLS[lang].map(s=>s[0]);
+  const start = preferSkill && !S.done[key(lang,preferSkill)] ? [preferSkill] : [];
+  for (const sk of start.concat(order.filter(s=>!S.done[key(lang,s)])).concat(order)) {
+    const p = recommendIn(lang, sk, exclude); if (p) return {p};
+  }
+  const sk = preferSkill || order[0];
+  return {gen:{lang, skill:sk, level:levelOf(lang,sk)}};
+}
+// After a mistake: an unsolved problem in the same skill at a lower level, else same level, else ask Claude for an easier one.
+function easierThan(p){
+  const list = pool(p.lang,p.skill);
+  for (const l of [p.level-1, p.level-2]) { if(l<1) continue; const q=firstOpen(list,l,p.id); if(q) return {p:q}; }
+  if (p.level===1) { const q=firstOpen(list,1,p.id); if(q) return {p:q}; }
+  return {gen:{lang:p.lang, skill:p.skill, level:Math.max(1,p.level-1), easierThan:p}};
+}
+function onPass(p){
+  const k=key(p.lang,p.skill), clean=!S.fails[p.id] && !S.used[p.id];
+  if (S.solved[p.id]) return "";
+  S.solved[p.id] = S.used[p.id]==="solution" ? "shown" : (clean ? "clean" : "retry");
+  let msg="";
+  if (S.used[p.id]==="solution") msg="Solved with the solution shown, so your level stays where it is.";
+  else if (clean){
+    if (p.level===3){ S.done[k]=true; S.level[k]=3; msg=`First try on a Challenge problem. ${skillName(p.lang,p.skill)} is marked as mastered.`; }
+    else if (levelOf(p.lang,p.skill) <= p.level){ S.level[k]=p.level+1; msg=`First try, so you move up to Level ${p.level+1}: ${LEVEL_NAME[p.level+1]}.`; }
+  } else {
+    if (levelOf(p.lang,p.skill) < p.level){ S.level[k]=p.level; msg=`You got there. You're back at Level ${p.level}.`; }
+    if (p.level===3) S.done[k]=true;
+  }
+  save(); return msg;
+}
+function onMiss(p, kind){ // kind: 'fail' | 'solution'
+  const k=key(p.lang,p.skill), first=!S.fails[p.id] && !S.used[p.id];
+  if (kind==="fail") S.fails[p.id]=(S.fails[p.id]||0)+1; else S.used[p.id]="solution";
+  let msg="";
+  if (first && !S.solved[p.id] && p.level>1 && levelOf(p.lang,p.skill)>=p.level){ S.level[k]=p.level-1; msg=`Your ${skillName(p.lang,p.skill)} level drops to ${p.level-1} for now. Solve this one or the easier question to climb back.`; }
+  save(); return msg;
+}
+
+/* ================= DOM helpers ================= */
+const $=id=>document.getElementById(id);
+const editor=$("editor"), consoleEl=$("console");
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const lv=l=>`var(--${l})`;
+function md(s){ // tiny renderer for Claude-generated task text
+  const parts=String(s||"").split(/```[a-z]*\n?/);
+  return parts.map((chunk,i)=> i%2 ? `<pre><code>${esc(chunk.replace(/\n$/,""))}</code></pre>` :
+    chunk.split(/\n{2,}/).map(par=>{
+      const lines=par.split("\n"); const inl=t=>esc(t).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>");
+      if(lines.every(l=>/^\s*[-*]\s+/.test(l)||!l.trim())) return "<ul>"+lines.filter(l=>l.trim()).map(l=>`<li>${inl(l.replace(/^\s*[-*]\s+/,""))}</li>`).join("")+"</ul>";
+      return par.trim()?`<p>${inl(par).replace(/\n/g,"<br>")}</p>`:"";
+    }).join("")).join("");
+}
+let current=null, adaptNote="";
+
+/* ================= Rendering ================= */
+function renderProgress(){
+  $("progress").innerHTML = Object.entries(LANGS).map(([k,v])=>{
+    const b=BANK.filter(p=>p.lang===k), d=b.filter(p=>S.solved[p.id]).length;
+    return `<span class="pchip">${v.label} <b>${d}/${b.length}</b></span>`;
+  }).join("");
+}
+function renderTabs(){
+  $("tabs").innerHTML = Object.entries(LANGS).map(([k,v])=>
+    `<button class="tab" role="tab" type="button" style="--lang:${lv(k)}" aria-selected="${k===S.lang}" data-lang="${k}">${v.label}</button>`).join("");
+}
+function renderSkills(){
+  const lang=S.lang, openSkill=current&&current.lang===lang?current.skill:null;
+  $("skills").innerHTML = SKILLS[lang].map(([id,name])=>{
+    const list=pool(lang,id), bank=list.filter(p=>p.src!=="gen"), solved=bank.filter(p=>S.solved[p.id]).length, L=levelOf(lang,id), done=S.done[key(lang,id)];
+    const isOpen = id===openSkill;
+    const pips = [1,2,3].map(n=>`<span class="pip${n<=L?" on":""}"></span>`).join("");
+    const items = isOpen ? `<ul class="plist">${list.slice().sort((a,b)=>a.level-b.level).map(p=>{
+        const st=S.solved[p.id]; const ck = st ? `<span class="ck ${st==="shown"?"h":"s"}">✓</span>` : `<span class="ck"></span>`;
+        return `<li><button type="button" class="pitem" data-ex="${p.id}" aria-current="${current&&p.id===current.id}">${ck}<span class="tt">${esc(p.title)}</span><span class="lv">L${p.level}${p.src==="gen"?"·AI":""}</span></button></li>`;}).join("")}</ul>` : "";
+    return `<li><button type="button" class="skill" style="--lang:${lv(lang)}" data-skill="${id}" aria-expanded="${isOpen}">
+      <span class="nm">${esc(name)}</span>${done?'<span class="donemark">MASTERED</span>':`<span class="pips" title="Your level: ${L} of 3">${pips}</span>`}
+      <small>${solved}/${bank.length} solved · Level ${L}: ${LEVEL_NAME[L]}</small></button>${items}</li>`;
+  }).join("");
+}
+function dataPanel(p){
+  if (p.lang==="sql") return `<h3>Tables</h3><pre>members(memid, surname, firstname,
+        address, zipcode, telephone,
+        recommendedby, joindate)
+facilities(facid, name, membercost,
+           guestcost, initialoutlay,
+           monthlymaintenance)
+bookings(bookid, facid, memid,
+         starttime, slots)</pre>
+<p class="note">A slot is half an hour. Member 0 is the guest account, which pays <code>guestcost</code>. Timestamps are text like <code>2012-07-03 11:00:00</code>. The original exercises write <code>cd.members</code>; plain <code>members</code> works too.</p>
+<div class="rowbtns"><button class="ghost" type="button" data-peek="members">Preview members</button><button class="ghost" type="button" data-peek="facilities">Preview facilities</button><button class="ghost" type="button" data-peek="bookings">Preview bookings</button></div>`;
+  if (p.lang==="py" && p.setup) return `<h3>Already run for you</h3><pre><code>${esc(p.setup)}</code></pre><div class="rowbtns"><button class="ghost" type="button" data-peekpy="1">Show the data</button></div>`;
+  if (p.lang==="py") return `<p class="note"><code>pd</code> and <code>np</code> are imported for you.</p>`;
+  return "";
+}
+function renderBrief(){
+  const p=current, b=$("brief"); b.style.setProperty("--lang",lv(p.lang));
+  const st=S.solved[p.id];
+  const explain = p.explain && (st || S.used[p.id]==="solution") ? `<details class="explain"><summary>Explanation</summary>${p.explain}</details>` : "";
+  b.innerHTML = `<div class="adapt" id="adapt" ${adaptNote?"":"hidden"}><span>↺</span><span>${esc(adaptNote)}</span></div>
+    <div class="eyebrow">${LANGS[p.lang].label} · ${esc(skillName(p.lang,p.skill))} · Level ${p.level} ${LEVEL_NAME[p.level]}</div>
+    <h2>${esc(p.title)}${st?'<span class="tag">Solved</span>':""}</h2>
+    ${p.src==="gen"?md(p.body):p.body}
+    ${dataPanel(p)}
+    <h3>Stuck?</h3>
+    <div class="rowbtns"><button class="ghost" type="button" id="hintBtn">Show hint</button><button class="ghost" type="button" id="solBtn">Show solution</button><button class="ghost" type="button" id="genBtn">New problem like this from Claude</button></div>
+    <div id="revealArea"></div>${explain}
+    <p class="note" style="margin-top:14px">Source: ${esc(SRC_NAME[p.src]||p.src)}</p>`;
+}
+function renderWork(){
+  const p=current, L=LANGS[p.lang];
+  $("fileName").textContent=L.file;
+  editor.value = drafts[p.id] ?? p.starter ?? "";
+  const claude = usesClaude(p);
+  $("runBtn").hidden = claude;
+  $("submitBtn").textContent = claude ? "Check with Claude" : "Submit";
+  consoleEl.innerHTML = `<p class="out muted">${claude ? "Submit and Claude will predict what your code prints and check it against the task." : (p.lang==="py" ? "Run shows output and the value of your last line. Submit checks it. The first run downloads Python and pandas (about 20 MB)." : "Run shows your result. Submit checks it against the expected rows.")}</p>`;
+}
+function renderAll(){ renderProgress(); renderTabs(); renderSkills(); renderBrief(); renderWork(); }
+
+function openProblem(id, note){
+  const p=byId(id); if(!p) return;
+  current=p; S.lang=p.lang; S.cur[p.lang]=p.id; adaptNote=note||""; save(); renderAll();
+}
+function openRec(rec, note){
+  if (rec.p) openProblem(rec.p.id, note);
+  else generate(rec.gen, note);
+}
+const usesClaude = p => LANGS[p.lang].engine==="claude" || (p.lang==="py" && pyBroken);
+
+/* ================= Events ================= */
+$("tabs").addEventListener("click",ev=>{
+  const t=ev.target.closest("[data-lang]"); if(!t) return;
+  const lang=t.dataset.lang; S.lang=lang;
+  if (S.cur[lang] && byId(S.cur[lang])) openProblem(S.cur[lang]); else openRec(recommend(lang));
+});
+$("skills").addEventListener("click",ev=>{
+  const it=ev.target.closest("[data-ex]"); if(it) return openProblem(it.dataset.ex);
+  const sk=ev.target.closest("[data-skill]"); if(!sk) return;
+  const rec=recommendIn(S.lang, sk.dataset.skill);
+  if (rec) openProblem(rec.id); else { const any=pool(S.lang,sk.dataset.skill)[0]; if(any) openProblem(any.id, "You've solved everything here. Pick any problem to review, or ask Claude for a new one."); }
+});
+$("brief").addEventListener("click",async ev=>{
+  const p=current, area=$("revealArea");
+  if(ev.target.id==="hintBtn"){ if(!S.used[p.id]) { S.used[p.id]="hint"; save(); } area.innerHTML=`<div class="reveal"><b>Hint.</b> ${p.src==="gen"?md(p.hint):p.hint}</div>`; }
+  if(ev.target.id==="solBtn"){ const m = S.solved[p.id] ? "" : onMiss(p,"solution"); area.innerHTML=`<div class="reveal"><b>One possible solution</b><pre><code>${esc(p.solution)}</code></pre><button class="ghost" type="button" id="useSol">Copy into editor</button></div>`; if(m){adaptNote=m; const a=$("adapt"); a.hidden=false; a.lastElementChild.textContent=m;} renderSkills(); if(p.explain && !document.querySelector("details.explain")) area.insertAdjacentHTML("afterend",`<details class="explain"><summary>Explanation</summary>${p.explain}</details>`); }
+  if(ev.target.id==="useSol"){ editor.value=p.solution; saveDraft(); }
+  if(ev.target.id==="genBtn") generate({lang:p.lang, skill:p.skill, level:p.level});
+  const peek=ev.target.closest("[data-peek]");
+  if(peek){ setConsole(`<p class="out muted">Loading the club database…</p>`);
+    try{ const r=await runSQL(`SELECT * FROM ${peek.dataset.peek} LIMIT 25;`); setConsole(`<div class="sec">${esc(peek.dataset.peek)} (first 25 rows)</div>`+tableHTML(r)); }
+    catch(err){ setConsole(`<pre class="out err">${esc(err.message||err)}</pre>`) } }
+  if(ev.target.closest("[data-peekpy]")){ setConsole(`<p class="out muted">Starting Python…</p>`);
+    try{ const py=await getPy(); setConsole(`<pre class="out scroll">${esc(py.globals.get("_peek")(p.setup||""))}</pre>`); }
+    catch(err){ setConsole(`<pre class="out err">${esc(err.message||err)}</pre>`) } }
+});
+consoleEl.addEventListener("click",ev=>{
+  if(ev.target.closest("[data-focus]")) return editor.focus();
+  const b=ev.target.closest("[data-go]"); if(!b) return;
+  const rec=JSON.parse(b.dataset.go);
+  if (rec.id) openProblem(rec.id, b.dataset.note||""); else generate(rec, b.dataset.note||"");
+});
+let saveT; function saveDraft(){ clearTimeout(saveT); const id=current.id; saveT=setTimeout(()=>{drafts[id]=editor.value; store.set("cd2.drafts",drafts)},300); }
+editor.addEventListener("input",saveDraft);
+editor.addEventListener("keydown",ev=>{
+  if(ev.key==="Tab" && !ev.shiftKey){ev.preventDefault();const s=editor.selectionStart,e=editor.selectionEnd;editor.setRangeText(current.lang==="py"?"    ":"   ",s,e,"end");saveDraft()}
+  if(ev.key==="Enter" && (ev.metaKey||ev.ctrlKey)){ev.preventDefault(); if(ev.shiftKey||usesClaude(current)) submit(); else run();}
+});
+$("resetBtn").addEventListener("click",()=>{editor.value=current.starter||"";delete drafts[current.id];store.set("cd2.drafts",drafts);setConsole(`<p class="out muted">Code reset to the starter.</p>`)});
+$("runBtn").addEventListener("click",()=>run());
+$("submitBtn").addEventListener("click",()=>submit());
+
+function setConsole(html){consoleEl.innerHTML=html}
+function busy(on){$("runBtn").disabled=on;$("submitBtn").disabled=on}
+function verdictHTML(pass,title,fb){
+  return `<div class="verdict ${pass?"pass":"fail"}" role="status"><span>${pass?"✓":"✕"}</span><div><strong>${esc(title)}</strong>${fb?`<div class="fb">${fb}</div>`:""}</div></div>`;
+}
+function describe(rec){
+  if (rec.p) return `Level ${rec.p.level} · ${skillName(rec.p.lang,rec.p.skill)}: ${rec.p.title}`;
+  return `New Level ${rec.gen.level} ${skillName(rec.gen.lang,rec.gen.skill)} problem from Claude`;
+}
+function goBtn(rec, label, alt, note){
+  const payload = rec.p ? {id:rec.p.id} : rec.gen;
+  return `<button type="button" class="go${alt?" alt":""}" data-go='${esc(JSON.stringify(payload))}' data-note="${esc(note||"")}">${esc(label)}<small>${esc(describe(rec))}</small></button>`;
+}
+function afterResult(p, pass, levelMsg){
+  if (pass){
+    const rec = recommend(p.lang, S.done[key(p.lang,p.skill)] ? null : p.skill, p.id);
+    return `${levelMsg?`<p class="note">${esc(levelMsg)}</p>`:""}<div class="nextrow">${goBtn(rec,"Next problem →",false,"")}</div>`;
+  }
+  const easy = easierThan(p);
+  return `${levelMsg?`<p class="note">${esc(levelMsg)}</p>`:""}<div class="nextrow"><button type="button" class="go alt" data-focus="1">Try again<small>Fix your code and submit</small></button>${goBtn(easy,"Easier question →",false,`Easier question on ${skillName(p.lang,p.skill)}, since the last one didn't work out yet. You can go back to "${p.title}" anytime from the list.`)}</div>`;
+}
+
+/* ================= Script loading ================= */
+const loaded={};
+function loadScript(src){return loaded[src] ||= new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=()=>rej(new Error("Couldn't load "+src));document.head.appendChild(s)})}
+
+/* ================= SQL (sql.js, pure-JS build) ================= */
+let sqlBase;
+async function getBase(){
+  if (!sqlBase) sqlBase=(async()=>{
+    await loadScript("https://cdn.jsdelivr.net/npm/sql.js@1.13.0/dist/sql-asm.js");
+    const SQL=await initSqlJs();
+    const seed=await (await fetch("data/club.sql.txt")).text();
+    const db=new SQL.Database(); db.run(seed); const bytes=db.export(); db.close();
+    return {SQL, bytes};
+  })().catch(e=>{sqlBase=null; throw e;});
+  return sqlBase;
+}
+async function runSQL(src){
+  const {SQL,bytes}=await getBase(); const db=new SQL.Database(bytes);
+  try{ const res=db.exec(src.replace(/\bcd\./gi,"")); return res.length?res[res.length-1]:null; }
+  finally{ db.close(); }
+}
+function tableHTML(r){
+  if(!r) return `<p class="out muted">The query ran and returned no rows.</p>`;
+  const rows=r.values.slice(0,100);
+  return `<div class="tbl-wrap"><table class="res"><thead><tr>${r.columns.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${
+    rows.map(v=>`<tr>${v.map(x=>`<td>${x===null?'<span class="muted">NULL</span>':esc(typeof x==="number"&&!Number.isInteger(x)?+x.toFixed(4):x)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+    <p class="out muted">${r.values.length} row${r.values.length===1?"":"s"}${r.values.length>100?" (showing 100)":""}</p>`;
+}
+const normRows=(r,ordered)=>{ if(!r) return "[]"; const rows=r.values.map(v=>JSON.stringify(v.map(x=>typeof x==="number"?Math.round(x*100)/100:(x===null?null:String(x))))); if(!ordered) rows.sort(); return JSON.stringify(rows); };
+
+/* ================= Python (Pyodide + pandas, files shipped with this page) ================= */
+const PY_HARNESS = String.raw`
+import ast, io, math, warnings, traceback, contextlib
+import numpy as np, pandas as pd
+pd.set_option('display.width', 110); pd.set_option('display.max_columns', 30); pd.set_option('display.max_rows', 60)
+_MISSING = object()
+
+def _fresh(setup):
+    np.random.seed(0)
+    ns = {'__name__': '__main__', 'pd': pd, 'np': np}
+    if setup:
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            exec(compile(setup, 'setup', 'exec'), ns)
+    return ns
+
+def _fmt_exc(e):
+    if isinstance(e, SyntaxError):
+        return ''.join(traceback.format_exception_only(type(e), e))
+    te = traceback.TracebackException.from_exception(e)
+    frames = [f for f in te.stack if f.filename == 'your code']
+    lines = ['Traceback (most recent call last):\n'] + traceback.StackSummary.from_list(frames).format()
+    return ''.join(lines + list(te.format_exception_only()))
+
+def _exec(setup, src):
+    ns = _fresh(setup); buf = io.StringIO(); last = _MISSING; err = None
+    try:
+        tree = ast.parse(src, 'your code')
+        tail = tree.body[-1] if tree.body and isinstance(tree.body[-1], ast.Expr) else None
+        if tail is not None:
+            tree.body = tree.body[:-1]
+        with contextlib.redirect_stdout(buf), warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            exec(compile(tree, 'your code', 'exec'), ns)
+            if tail is not None:
+                last = eval(compile(ast.Expression(tail.value), 'your code', 'eval'), ns)
+    except Exception as e:
+        err = _fmt_exc(e)
+    return ns, buf.getvalue(), last, err
+
+def _show(v):
+    if v is _MISSING: return ''
+    if isinstance(v, (pd.DataFrame, pd.Series)): return v.to_string()
+    return repr(v)
+
+def _pick(ns, last, check):
+    if check.startswith('var:'):
+        return ns.get(check[4:], _MISSING)
+    if last is _MISSING or last is None:
+        return ns.get('result', _MISSING)
+    return last
+
+def _short(e):
+    s = str(e).strip()
+    return s if len(s) < 700 else s[:700] + ' ...'
+
+_FKW = dict(check_dtype=False, check_exact=False, check_names=False, check_index_type=False,
+            check_column_type=False, check_categorical=False, check_freq=False, rtol=1e-4, atol=1e-6)
+_SKW = dict(check_dtype=False, check_exact=False, check_names=False, check_index_type=False,
+            check_categorical=False, check_freq=False, rtol=1e-4, atol=1e-6)
+
+def _flat(d):
+    d = d.reset_index(drop=isinstance(d.index, pd.RangeIndex))
+    d.columns = [str(c) for c in d.columns]
+    return d
+
+def _attempts(pairs, fn, kw):
+    first = None
+    for x, y in pairs:
+        try:
+            fn(x, y, **kw); return None
+        except AssertionError as e:
+            first = first or _short(e)
+        except Exception:
+            pass
+    return first or 'Values differ.'
+
+def _cmp(a, b, ordered):
+    if isinstance(b, pd.DataFrame):
+        if not isinstance(a, pd.DataFrame):
+            return f'Expected a DataFrame, but your value is a {type(a).__name__}.'
+        if a.shape != b.shape:
+            return f'Expected shape {b.shape} (rows, columns), but yours is {a.shape}.'
+        pairs = [(a, b)]
+        if not ordered:
+            pairs.append((a.sort_index(), b.sort_index()))
+        pairs.append((_flat(a), _flat(b)))
+        return _attempts(pairs, pd.testing.assert_frame_equal, _FKW)
+    if isinstance(b, pd.Series):
+        if isinstance(a, pd.DataFrame) and a.shape[1] == 1:
+            a = a.iloc[:, 0]
+        if not isinstance(a, pd.Series):
+            return f'Expected a Series, but your value is a {type(a).__name__}.'
+        if len(a) != len(b):
+            return f'Expected {len(b)} values, but yours has {len(a)}.'
+        pairs = [(a, b)]
+        if not ordered:
+            pairs.append((a.sort_index(), b.sort_index()))
+        return _attempts(pairs, pd.testing.assert_series_equal, _SKW)
+    if isinstance(b, pd.Index):
+        if not isinstance(a, pd.Index):
+            return f'Expected an Index, but your value is a {type(a).__name__}.'
+        try:
+            pd.testing.assert_index_equal(a, b, exact=False, check_names=False, check_exact=False, check_categorical=False)
+            return None
+        except AssertionError as e:
+            return _short(e)
+    if isinstance(b, (bool, np.bool_)):
+        return None if bool(a) == bool(b) and isinstance(a, (bool, np.bool_)) else f'Expected {b!r}, got {a!r}.'
+    if isinstance(b, (int, float, np.integer, np.floating)):
+        try:
+            fa = float(a)
+        except Exception:
+            return f'Expected a number, but your value is a {type(a).__name__}.'
+        fb = float(b)
+        if math.isnan(fb) and math.isnan(fa): return None
+        return None if math.isclose(fa, fb, rel_tol=1e-4, abs_tol=1e-6) else f'Expected {b!r}, got {a!r}.'
+    if isinstance(b, (list, tuple)):
+        if not isinstance(a, (list, tuple)) or len(a) != len(b):
+            return f'Expected {b!r}, got {a!r}.'
+        for x, y in zip(a, b):
+            m = _cmp(x, y, True)
+            if m: return m
+        return None
+    try:
+        return None if a == b else f'Expected {b!r}, got {a!r}.'
+    except Exception:
+        return f'Expected {b!r}, got {a!r}.'
+
+def _run(setup, src, check):
+    ns, out, last, err = _exec(setup, src)
+    v = _pick(ns, last, check)
+    return {'out': out, 'err': err, 'value': None if v is _MISSING else _show(v),
+            'label': check[4:] if check.startswith('var:') else 'Value of your last line'}
+
+def _check(setup, src, sol, check, ordered):
+    ns, out, last, err = _exec(setup, sol)
+    if err: return {'pass': False, 'msg': 'The reference solution failed: ' + err}
+    want = _pick(ns, last, check)
+    ns, out, last, err = _exec(setup, src)
+    if err: return {'pass': False, 'err': err, 'out': out}
+    mine = _pick(ns, last, check)
+    if mine is _MISSING:
+        if check.startswith('var:'):
+            return {'pass': False, 'out': out, 'msg': f'No variable named {check[4:]} after your code ran.'}
+        return {'pass': False, 'out': out, 'msg': 'Your last line has no value to check. End with the expression itself (for example df.head(3)), not print(...) or an assignment.'}
+    m = _cmp(mine, want, ordered)
+    return {'pass': m is None, 'msg': m, 'out': out, 'mine': _show(mine), 'want': _show(want)}
+
+def _peek(setup):
+    ns = _fresh(setup); parts = []
+    for k, v in ns.items():
+        if k in ('pd', 'np') or k.startswith('_'): continue
+        if isinstance(v, (pd.DataFrame, pd.Series, pd.Index, list, dict)) and not callable(v):
+            parts.append(f'{k}  ({type(v).__name__})\n{_show(v)}')
+    return '\n\n'.join(parts) or 'Nothing to show.'
+`;
+let pyP=null, pyBroken=false;
+function installArchiveShim(){
+  // Archives ship as base64 text files beside the page; decode them when Pyodide asks for .zip/.whl.
+  if (window.__shim) return; window.__shim=true;
+  const f=window.fetch.bind(window);
+  window.fetch=async(u,o)=>{ const s=String(u instanceof Request?u.url:u);
+    if(/\/pyodide\/[^/]+\.(zip|whl)$/.test(s)){ const r=await f(s+".b64.txt"); if(!r.ok) return r;
+      const b=Uint8Array.from(atob((await r.text()).replace(/\s/g,"")),c=>c.charCodeAt(0));
+      return new Response(b,{status:200,headers:{"Content-Type":"application/octet-stream"}}); }
+    return f(u,o); };
+}
+function getPy(){
+  return pyP ||= (async()=>{
+    installArchiveShim();
+    await loadScript("pyodide/pyodide.js");
+    const py=await loadPyodide({indexURL:new URL("pyodide/",location.href).href});
+    await py.loadPackage(["numpy","pandas"]);
+    py.runPython(PY_HARNESS);
+    return py;
+  })().catch(e=>{ pyBroken=true; pyP=null; throw e; });
+}
+async function pyCall(fn, ...args){
+  const py=await getPy(); const r=py.globals.get(fn)(...args);
+  const js=r.toJs({dict_converter:Object.fromEntries}); r.destroy(); return js;
+}
+
+/* ================= Run / Submit ================= */
+async function run(){
+  const p=current, code=editor.value; busy(true);
+  setConsole(`<p class="out muted">${p.lang==="sql"?"Running query…":"Running… (the first run downloads Python and pandas, about 20 MB)"}</p>`);
+  try{
+    if(p.lang==="sql"){ setConsole(tableHTML(await runSQL(code))); }
+    else {
+      const r=await pyCall("_run", p.setup||"", code, p.check||"expr");
+      let h="";
+      if (r.out) h+=`<div class="sec">Printed</div><pre class="out scroll">${esc(r.out)}</pre>`;
+      if (r.err) h+=`<pre class="out err">${esc(r.err)}</pre>`;
+      else if (r.value!=null) h+=`<div class="sec">${esc(r.label)}</div><pre class="out scroll">${esc(r.value)}</pre>`;
+      setConsole(h||`<p class="out muted">Ran without output. End with an expression to see its value.</p>`);
+    }
+  }catch(err){
+    if (p.lang==="py" && pyBroken){ renderWork(); setConsole(verdictHTML(false,"Python couldn't start in this view","Your pandas answers will be checked by Claude instead. Press Check with Claude.")); }
+    else setConsole(`<pre class="out err">${esc(err.message||String(err))}</pre>`);
+  } finally{ busy(false) }
+}
+
+async function submit(){
+  const p=current, code=editor.value;
+  if (usesClaude(p)) return checkWithClaude(p, code);
+  busy(true); setConsole(`<p class="out muted">Checking…</p>`);
+  try{
+    if(p.lang==="sql"){
+      let mine;
+      try{ mine=await runSQL(code); }
+      catch(err){ const m=onMiss(p,"fail"); setConsole(verdictHTML(false,"Your query has an error","Read the message, fix it and submit again.")+`<pre class="out err">${esc(err.message)}</pre>`+afterResult(p,false,m)); renderSkills(); return; }
+      const want=await runSQL(p.solution);
+      const pass = normRows(mine,p.ordered)===normRows(want,p.ordered) && (mine?mine.columns.length:0)===(want?want.columns.length:0);
+      let fb="";
+      if(!pass){
+        const mr=mine?mine.values.length:0, wr=want?want.values.length:0, mc=mine?mine.columns.length:0, wc=want?want.columns.length:0;
+        fb = mc!==wc ? `Expected ${wc} column${wc===1?"":"s"}; you returned ${mc}.` :
+             mr!==wr ? `Expected ${wr} row${wr===1?"":"s"}; you returned ${mr}.` :
+             (normRows(mine,false)===normRows(want,false) ? "Right rows, wrong order. Check your ORDER BY." : "Same shape, but some values differ. Compare with the expected rows below.");
+      }
+      const m = pass ? onPass(p) : onMiss(p,"fail");
+      setConsole(verdictHTML(pass, pass?"Correct!":"Not quite", fb) + afterResult(p,pass,m) + `<div class="sec">Your result</div>`+tableHTML(mine) + (pass?"":`<div class="sec">Expected</div>`+tableHTML(want)));
+    } else {
+      const r=await pyCall("_check", p.setup||"", code, p.solution, p.check||"expr", !!p.ordered);
+      const pass=!!r.pass;
+      const m = pass ? onPass(p) : onMiss(p,"fail");
+      let h = verdictHTML(pass, pass?"Correct!":(r.err?"Your code raised an error":"Not quite"), pass?"":esc(r.err?"Read the traceback and fix the line it points to.":(r.msg||""))) + afterResult(p,pass,m);
+      if (r.err) h+=`<pre class="out err">${esc(r.err)}</pre>`;
+      if (r.out) h+=`<div class="sec">Printed</div><pre class="out scroll">${esc(r.out)}</pre>`;
+      if (r.mine!=null && !r.err) h+=`<div class="sec">Your value</div><pre class="out scroll">${esc(r.mine)}</pre>`;
+      if (!pass && r.want!=null) h+=`<div class="sec">Expected</div><pre class="out scroll">${esc(r.want)}</pre>`;
+      setConsole(h);
+    }
+    renderSkills(); renderProgress();
+    if (S.solved[p.id]) { const h2=document.querySelector("#brief h2"); if(h2 && !h2.querySelector(".tag")) h2.insertAdjacentHTML("beforeend",'<span class="tag">Solved</span>');
+      if (p.explain && !document.querySelector("details.explain")) $("revealArea").insertAdjacentHTML("afterend",`<details class="explain"><summary>Explanation</summary>${p.explain}</details>`); }
+  }catch(err){
+    if (p.lang==="py" && pyBroken){ renderWork(); setConsole(verdictHTML(false,"Python couldn't start in this view","Your pandas answers will be checked by Claude instead. Press Check with Claude.")); }
+    else setConsole(`<pre class="out err">${esc(err.message||String(err))}</pre>`);
+  } finally{ busy(false) }
+}
+
+/* ================= Claude: checking R/SAS and generating problems ================= */
+const samplePromise = (window.claude && window.claude.use) ? window.claude.use("sample").catch(()=>null) : Promise.resolve(null);
+let claudeOff=false;
+const CONTEXT = {
+  sql:"SQLite. Tables: members(memid, surname, firstname, address, zipcode, telephone, recommendedby, joindate), facilities(facid, name, membercost, guestcost, initialoutlay, monthlymaintenance), bookings(bookid, facid, memid, starttime, slots). A slot is 30 minutes; memid 0 is the guest account that pays guestcost; timestamps are TEXT like '2012-07-03 11:00:00' covering July 2012 to January 2013. Use SQLite functions only (strftime, julianday, date, printf, window functions and recursive CTEs are fine; no EXTRACT, DATE_TRUNC, INTERVAL, LPAD, ROLLUP).",
+  py:"Python 3.12 with pandas 2.2 (as pd) and numpy (as np) only. np.random.seed(0) runs before the setup code. Any data the task needs must be built in the setup code (small, 5 to 30 rows, deterministic).",
+  r:"R 4.x with dplyr and tidyr installed. Data: built-in datasets (mtcars, iris, ToothGrowth, airquality, ...) and a data frame named gapminder (country, year, pop, continent, lifeExp, gdpPercap; 1,704 rows, the Software Carpentry gapminder_data.csv) already loaded.",
+  sas:"SAS 9.4. sashelp datasets (class, cars, heart, iris, baseball, ...) are available; write new tables to the WORK library."
+};
+function claudeErr(e){
+  const code=e&&e.code;
+  if(["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].includes(code)){ claudeOff=true; return verdictHTML(false,"Claude is turned off for this page","You can still practise: compare your code with Show solution."); }
+  if(code==="rate_limited") return verdictHTML(false,"Too many requests in a short time","Wait a minute, then try again.");
+  if(code==="invalid_json") return verdictHTML(false,"Claude's reply couldn't be read","Try again.");
+  if(code==="cancelled") return "";
+  return verdictHTML(false,"Claude didn't finish","Something went wrong reaching Claude. Try again.");
+}
+async function getSample(){ const s = claudeOff ? null : await samplePromise; return s; }
+function plainTask(p){ const d=document.createElement("div"); d.innerHTML = p.src==="gen" ? md(p.body) : p.body; return d.textContent.trim(); }
+
+async function checkWithClaude(p, code){
+  const label = p.lang==="py" ? "Python (pandas)" : LANGS[p.lang].label;
+  busy(true); setConsole(`<p class="out muted">Claude is reading your ${esc(label)} code…</p>`);
+  const sample = await getSample();
+  if(!sample){ busy(false); setConsole(verdictHTML(false,"Claude checking isn't available here","Open this page on claude.ai while signed in to have Claude check your code. Meanwhile, compare with Show solution.")); return; }
+  const prompt = `You are grading a ${label} practice exercise for a learner. You cannot execute code, so reason carefully about exactly what this code would do. Environment: ${CONTEXT[p.lang]}
+
+TASK:
+${plainTask(p)}
+${p.setup?`\nSETUP CODE (already run before the learner's code):\n${p.setup}\n`:""}
+REFERENCE SOLUTION (one correct answer; other approaches are fine if the result is equivalent):
+${p.solution}
+
+LEARNER CODE:
+${code}
+
+Decide whether the learner's code would run without errors and produce a result equivalent to the reference. Cosmetic differences the task does not specify (formatting, labels, column order, an extra print) are fine. For tasks that only ask for code that produces plots or random numbers, judge whether the code does what was asked.
+
+Reply with only a JSON object:
+{"passed": true or false,
+ "output": "the output the learner's code would print, as plain text; for SAS show the key listing output and any ERROR or WARNING lines from the log; under 40 lines",
+ "feedback": "2-4 sentences to the learner: if it fails, name the specific problem and how to fix it without pasting the full solution; if it passes, one sentence of praise and one tip"}`;
+  try{
+    const r = await sample.json(prompt,{modelTier:"default"});
+    const pass = r && r.passed===true;
+    const m = pass ? onPass(p) : onMiss(p,"fail");
+    setConsole(verdictHTML(pass, pass?"Correct!":"Not quite", esc(r?.feedback||"")) + afterResult(p,pass,m) +
+      `<div class="sec">Predicted output <span class="tag">from Claude, not executed</span></div><pre class="out scroll">${esc(r?.output||"(no output)")}</pre>`);
+    renderSkills(); renderProgress();
+  }catch(e){ setConsole(claudeErr(e)); }
+  finally{ busy(false); }
+}
+
+async function generate(spec, note){
+  const {lang, skill, level, easierThan} = spec;
+  S.lang=lang; renderTabs();
+  setConsole(`<p class="out muted">Claude is writing a new Level ${level} ${esc(skillName(lang,skill))} problem…</p>`);
+  const sample = await getSample();
+  if(!sample){ setConsole(verdictHTML(false,"Claude isn't available here","New problems need Claude, which only works when this page is open on claude.ai and signed in. Pick any problem from the list instead.")); return; }
+  const examples = pool(lang,skill).filter(p=>p.src!=="gen").sort((a,b)=>Math.abs(a.level-level)-Math.abs(b.level-level)).slice(0,3)
+    .map(p=>`- Level ${p.level}: ${p.title}\n  Task: ${plainTask(p).slice(0,400)}\n  Solution:\n${p.solution}`).join("\n\n");
+  const label = lang==="py" ? "Python with pandas" : LANGS[lang].label;
+  const prompt = `Write one new practice problem for a data science learner.
+Language: ${label}. Skill: ${skillName(lang,skill)}. Difficulty: Level ${level} of 3 (1 = one concept, heavily guided; 2 = combine two ideas; 3 = a multi-step challenge).
+Environment: ${CONTEXT[lang]}
+${easierThan?`The learner just got this problem wrong, so make the new one simpler and more guided, focused on the core idea they are missing:\n${easierThan.title}: ${plainTask(easierThan).slice(0,500)}\n`:""}
+Existing problems for this skill (write something different):
+${examples}
+
+Reply with only a JSON object with these string fields:
+{"title": "3 to 7 words",
+ "task": "clear instructions in plain text; wrap code in backticks; state exactly what the answer should contain${lang==="sql"?" (columns and order)":""}",
+ "starter": "starter code with a comment where the learner writes the answer",
+ "hint": "one or two sentences",
+ "solution": "complete, correct code"${lang==="py"?`,
+ "setup": "Python that builds the data the task uses (can be empty); the learner sees it",
+ "check": "expr if the value of the solution's last line is the answer, or var:NAME if a variable is the answer"`:""}${lang==="sql"?`,
+ "ordered": "yes if the task specifies a row order, otherwise no"`:""}}
+${lang==="sql"?"The solution must run on SQLite and return at least one row.":""}${lang==="py"?"The solution must end with an expression whose value is the answer (when check is expr).":""}`;
+  try{
+    const g = await sample.json(prompt,{modelTier:"default",cache:false});
+    if(!g || !g.title || !g.solution || !g.task) throw {code:"invalid_json"};
+    const p = {id:"gen-"+Date.now().toString(36), lang, skill, level, title:String(g.title), body:String(g.task), starter:String(g.starter||""), hint:String(g.hint||""), solution:String(g.solution), src:"gen"};
+    if (lang==="sql"){ p.ordered = /^y/i.test(String(g.ordered||"")); const r=await runSQL(p.solution); if(!r||!r.values.length) throw new Error("its solution returned no rows"); }
+    if (lang==="py"){ p.setup=String(g.setup||""); p.check=/^var:\w+$/.test(g.check||"")?g.check:"expr";
+      if(!pyBroken){ const r=await pyCall("_run", p.setup, p.solution, p.check); if(r.err||r.value==null) throw new Error("its solution didn't run cleanly"); } }
+    S.gen.push(p); save();
+    openProblem(p.id, note || (easierThan ? `Here's an easier problem on ${skillName(lang,skill)}.` : "A new problem written by Claude for your current level."));
+  }catch(e){
+    if (e instanceof Error) setConsole(verdictHTML(false,"That problem didn't pass its own check",`Claude's problem was thrown away because ${esc(e.message)}. Try again for a new one.`)+`<div class="nextrow"><button type="button" class="go" data-go='${esc(JSON.stringify(spec))}'>Try again<small>New Level ${level} problem</small></button></div>`);
+    else setConsole(claudeErr(e));
+  }
+}
+
+/* ================= Boot ================= */
+(function boot(){
+  const id = S.cur[S.lang];
+  if (id && byId(id)) openProblem(id); else openRec(recommend(S.lang));
+})();
+</script>

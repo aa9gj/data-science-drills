@@ -1,0 +1,458 @@
+[
+ {
+  "id": "py-ml-split",
+  "lang": "py",
+  "skill": "ml",
+  "level": 1,
+  "title": "Train/test split",
+  "body": "<p>Split the iris data into train and test sets with 25% for testing, <code>random_state=0</code>, stratified on <code>y</code>. Name them <code>X_train, X_test, y_train, y_test</code> and end with <code>(X_train.shape, X_test.shape)</code>.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "from sklearn.datasets import load_iris\nfrom sklearn.model_selection import train_test_split\nX, y = load_iris(return_X_y=True)",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0, stratify=y)\n(X_train.shape, X_test.shape)",
+  "hint": "<code>train_test_split(X, y, test_size=0.25, random_state=0, stratify=y)</code> returns four arrays in that order.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-ml-knn",
+  "lang": "py",
+  "skill": "ml",
+  "level": 1,
+  "title": "k-nearest neighbours",
+  "body": "<p>Fit a <code>KNeighborsClassifier(n_neighbors=5)</code> on the training set and return its accuracy on the test set, rounded to 3 decimals.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "from sklearn.datasets import load_iris\nfrom sklearn.model_selection import train_test_split\nX, y = load_iris(return_X_y=True)\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0, stratify=y)",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.neighbors import KNeighborsClassifier\nmodel = KNeighborsClassifier(n_neighbors=5).fit(X_train, y_train)\nround(model.score(X_test, y_test), 3)",
+  "hint": "For classifiers, <code>model.score(X_test, y_test)</code> is accuracy.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-ml-linreg",
+  "lang": "py",
+  "skill": "ml",
+  "level": 1,
+  "title": "Linear regression R\u00b2",
+  "body": "<p>Fit a <code>LinearRegression</code> on the diabetes training set and return R\u00b2 on the test set, rounded to 3 decimals.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "from sklearn.datasets import load_diabetes\nfrom sklearn.model_selection import train_test_split\nX, y = load_diabetes(return_X_y=True)\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.linear_model import LinearRegression\nmodel = LinearRegression().fit(X_train, y_train)\nround(model.score(X_test, y_test), 3)",
+  "hint": "For regressors, <code>model.score()</code> returns R\u00b2.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-ml-confusion",
+  "lang": "py",
+  "skill": "ml",
+  "level": 2,
+  "title": "Confusion matrix",
+  "body": "<p>Fit <code>LogisticRegression(max_iter=5000)</code> on the breast cancer training set and return the confusion matrix of its test predictions (a 2\u00d72 array).</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "from sklearn.datasets import load_breast_cancer\nfrom sklearn.model_selection import train_test_split\nX, y = load_breast_cancer(return_X_y=True)\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0, stratify=y)",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import confusion_matrix\nmodel = LogisticRegression(max_iter=5000).fit(X_train, y_train)\nconfusion_matrix(y_test, model.predict(X_test))",
+  "hint": "<code>confusion_matrix(y_true, y_pred)</code>; rows are true classes, columns predicted.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-ml-prf",
+  "lang": "py",
+  "skill": "ml",
+  "level": 2,
+  "title": "Precision, recall and F1",
+  "body": "<p>With the same model as above (<code>LogisticRegression(max_iter=5000)</code> on the breast cancer split), return a tuple of precision, recall and F1 for class 1 on the test set, each rounded to 3 decimals.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "from sklearn.datasets import load_breast_cancer\nfrom sklearn.model_selection import train_test_split\nX, y = load_breast_cancer(return_X_y=True)\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0, stratify=y)",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import precision_score, recall_score, f1_score\npred = LogisticRegression(max_iter=5000).fit(X_train, y_train).predict(X_test)\n(round(precision_score(y_test, pred), 3), round(recall_score(y_test, pred), 3), round(f1_score(y_test, pred), 3))",
+  "hint": "<code>precision_score</code>, <code>recall_score</code> and <code>f1_score</code> default to the positive class 1.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-ml-rmse",
+  "lang": "py",
+  "skill": "ml",
+  "level": 2,
+  "title": "Regularised regression RMSE",
+  "body": "<p>Fit <code>Ridge(alpha=1.0)</code> on the diabetes training set and return the test RMSE (root mean squared error), rounded to 2 decimals.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "from sklearn.datasets import load_diabetes\nfrom sklearn.model_selection import train_test_split\nX, y = load_diabetes(return_X_y=True)\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.linear_model import Ridge\nfrom sklearn.metrics import mean_squared_error\npred = Ridge(alpha=1.0).fit(X_train, y_train).predict(X_test)\nround(float(np.sqrt(mean_squared_error(y_test, pred))), 2)",
+  "hint": "RMSE is <code>np.sqrt(mean_squared_error(y_test, pred))</code>.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-ml-cv",
+  "lang": "py",
+  "skill": "ml",
+  "level": 3,
+  "title": "Cross-validation",
+  "body": "<p>Use 5-fold cross-validation to estimate the accuracy of <code>DecisionTreeClassifier(max_depth=3, random_state=0)</code> on the full wine data. Return the mean score rounded to 3 decimals.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "from sklearn.datasets import load_wine\nX, y = load_wine(return_X_y=True)",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.tree import DecisionTreeClassifier\nfrom sklearn.model_selection import cross_val_score\nscores = cross_val_score(DecisionTreeClassifier(max_depth=3, random_state=0), X, y, cv=5)\nround(scores.mean(), 3)",
+  "hint": "<code>cross_val_score(model, X, y, cv=5)</code> returns one score per fold.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-ml-auc",
+  "lang": "py",
+  "skill": "ml",
+  "level": 3,
+  "title": "ROC AUC",
+  "body": "<p>Build a pipeline of <code>StandardScaler</code> and <code>LogisticRegression()</code>, fit it on the breast cancer training set, and return the test ROC AUC using predicted probabilities for class 1, rounded to 4 decimals.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "from sklearn.datasets import load_breast_cancer\nfrom sklearn.model_selection import train_test_split\nX, y = load_breast_cancer(return_X_y=True)\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0, stratify=y)",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import roc_auc_score\nmodel = make_pipeline(StandardScaler(), LogisticRegression()).fit(X_train, y_train)\nround(roc_auc_score(y_test, model.predict_proba(X_test)[:, 1]), 4)",
+  "hint": "AUC needs scores, not labels: <code>predict_proba(X_test)[:, 1]</code>.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-ml-leak",
+  "lang": "py",
+  "skill": "ml",
+  "level": 3,
+  "title": "Fix the data leak",
+  "body": "<p>This code scales the data <i>before</i> splitting, so the test set leaks into the scaler:</p><pre><code>scaler = StandardScaler().fit(X)\nX_train, X_test, y_train, y_test = train_test_split(\n    scaler.transform(X), y, test_size=0.3, random_state=1, stratify=y)</code></pre><p>Rewrite it so you split first (same arguments, on the raw <code>X</code>) and fit <code>scaler</code> on the training data only. End with <code>scaler.mean_[:3].round(3)</code>.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "from sklearn.datasets import load_breast_cancer\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\nX, y = load_breast_cancer(return_X_y=True)",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1, stratify=y)\nscaler = StandardScaler().fit(X_train)\nX_train_s, X_test_s = scaler.transform(X_train), scaler.transform(X_test)\nscaler.mean_[:3].round(3)",
+  "hint": "Swap the order: <code>train_test_split</code> on raw <code>X</code>, then <code>StandardScaler().fit(X_train)</code>.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-mlp-pipeline",
+  "lang": "py",
+  "skill": "mlpipe",
+  "level": 1,
+  "title": "Build a pipeline",
+  "body": "<p>Create a <code>Pipeline</code> with steps <code>(\"scale\", StandardScaler())</code> and <code>(\"clf\", LogisticRegression(max_iter=1000))</code>, fit it on the breast cancer training set, and return test accuracy rounded to 3 decimals.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "from sklearn.datasets import load_breast_cancer\nfrom sklearn.model_selection import train_test_split\nX, y = load_breast_cancer(return_X_y=True)\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0, stratify=y)",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.linear_model import LogisticRegression\npipe = Pipeline([('scale', StandardScaler()), ('clf', LogisticRegression(max_iter=1000))])\npipe.fit(X_train, y_train)\nround(pipe.score(X_test, y_test), 3)",
+  "hint": "A pipeline fits like a model: <code>pipe.fit(X_train, y_train)</code>, then <code>pipe.score(...)</code>.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-mlp-onehot",
+  "lang": "py",
+  "skill": "mlpipe",
+  "level": 2,
+  "title": "Categorical features",
+  "body": "<p>Predict house <code>price</code> from <code>city</code>, <code>sqft</code> and <code>beds</code>. Use a <code>ColumnTransformer</code> that one-hot encodes <code>city</code> (with <code>handle_unknown=\"ignore\"</code>) and passes the numeric columns through, followed by <code>LinearRegression</code>. Fit on all of <code>houses</code> and return the predicted price for <code>new_house</code>, rounded to 1 decimal.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "houses = pd.DataFrame({\n    'city': ['Austin', 'Austin', 'Denver', 'Denver', 'Boston', 'Boston', 'Austin', 'Denver', 'Boston', 'Austin', 'Denver', 'Boston'],\n    'sqft': [1400, 2100, 1600, 2500, 1200, 1900, 1750, 1300, 2300, 2600, 2000, 1500],\n    'beds': [3, 4, 3, 4, 2, 3, 3, 2, 4, 5, 3, 3],\n    'price': [410, 590, 450, 690, 520, 760, 480, 380, 880, 700, 560, 610],   # thousands of dollars\n})\nnew_house = pd.DataFrame({'city': ['Denver'], 'sqft': [1800], 'beds': [3]})",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.compose import ColumnTransformer\nfrom sklearn.preprocessing import OneHotEncoder\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.linear_model import LinearRegression\nprep = ColumnTransformer([('city', OneHotEncoder(handle_unknown='ignore'), ['city'])], remainder='passthrough')\nmodel = make_pipeline(prep, LinearRegression()).fit(houses[['city', 'sqft', 'beds']], houses['price'])\nround(float(model.predict(new_house)[0]), 1)",
+  "hint": "<code>ColumnTransformer([(\"city\", OneHotEncoder(...), [\"city\"])], remainder=\"passthrough\")</code>, then chain it with the regressor.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-mlp-grid",
+  "lang": "py",
+  "skill": "mlpipe",
+  "level": 2,
+  "title": "Grid search",
+  "body": "<p>Split the wine data (25% test, <code>random_state=0</code>, stratified). Tune a pipeline of <code>StandardScaler</code> and <code>KNeighborsClassifier</code> over <code>n_neighbors</code> in <code>[1, 3, 5, 7, 9, 11]</code> with <code>GridSearchCV(cv=5)</code> on the training set. Name the KNN step <code>knn</code> and return <code>best_params_</code>.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "from sklearn.datasets import load_wine\nX, y = load_wine(return_X_y=True)\nfrom sklearn.model_selection import train_test_split\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0, stratify=y)",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.pipeline import Pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.model_selection import GridSearchCV\npipe = Pipeline([('scale', StandardScaler()), ('knn', KNeighborsClassifier())])\ngrid = GridSearchCV(pipe, {'knn__n_neighbors': [1, 3, 5, 7, 9, 11]}, cv=5).fit(X_train, y_train)\ngrid.best_params_",
+  "hint": "Parameters of a pipeline step are named <code>step__param</code>, e.g. <code>knn__n_neighbors</code>.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-mlp-importance",
+  "lang": "py",
+  "skill": "mlpipe",
+  "level": 3,
+  "title": "Feature importance",
+  "body": "<p>Fit <code>RandomForestClassifier(n_estimators=200, random_state=0)</code> on the training split of the breast cancer data (as a DataFrame). Return a list of the names of the 3 most important features, most important first.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "from sklearn.datasets import load_breast_cancer\nfrom sklearn.model_selection import train_test_split\ndata = load_breast_cancer(as_frame=True)\nX_train, X_test, y_train, y_test = train_test_split(data.data, data.target, test_size=0.25, random_state=0, stratify=data.target)",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.ensemble import RandomForestClassifier\nrf = RandomForestClassifier(n_estimators=200, random_state=0).fit(X_train, y_train)\npd.Series(rf.feature_importances_, index=X_train.columns).nlargest(3).index.tolist()",
+  "hint": "<code>rf.feature_importances_</code> lines up with <code>X_train.columns</code>; put them in a Series and take <code>nlargest(3)</code>.",
+  "check": "expr",
+  "ordered": true,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-mlp-degree",
+  "lang": "py",
+  "skill": "mlpipe",
+  "level": 3,
+  "title": "Choose model complexity",
+  "body": "<p>For polynomial degrees 1 to 5, score a pipeline of <code>PolynomialFeatures(degree)</code> and <code>LinearRegression</code> with 5-fold cross-validation using <code>scoring=\"neg_mean_squared_error\"</code> and <code>KFold(5, shuffle=True, random_state=0)</code>. Return the degree with the best (highest) mean score.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "rng = np.random.RandomState(5)\nx = np.sort(rng.uniform(-3, 3, 80)).reshape(-1, 1)\ny = 0.5 * x[:, 0] ** 3 - x[:, 0] + rng.normal(0, 1.5, 80)",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import PolynomialFeatures\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.model_selection import cross_val_score, KFold\ncv = KFold(5, shuffle=True, random_state=0)\nscores = {d: cross_val_score(make_pipeline(PolynomialFeatures(d), LinearRegression()), x, y, cv=cv, scoring='neg_mean_squared_error').mean() for d in range(1, 6)}\nmax(scores, key=scores.get)",
+  "hint": "Loop over degrees, store the mean CV score of each, and pick the key with the largest value.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-un-kmeans",
+  "lang": "py",
+  "skill": "unsup",
+  "level": 1,
+  "title": "k-means clusters",
+  "body": "<p>Run <code>KMeans(n_clusters=3, n_init=10, random_state=0)</code> on the iris features and return the cluster sizes as a sorted list (smallest first).</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "from sklearn.datasets import load_iris\nfrom sklearn.model_selection import train_test_split\nX, y = load_iris(return_X_y=True)",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.cluster import KMeans\nlabels = KMeans(n_clusters=3, n_init=10, random_state=0).fit_predict(X)\nsorted(np.bincount(labels).tolist())",
+  "hint": "<code>fit_predict</code> returns labels; <code>np.bincount</code> counts them.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-un-pca",
+  "lang": "py",
+  "skill": "unsup",
+  "level": 2,
+  "title": "Principal components",
+  "body": "<p>Standardise the iris features, then fit <code>PCA(n_components=2)</code>. Return <code>explained_variance_ratio_</code> rounded to 3 decimals.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "from sklearn.datasets import load_iris\nfrom sklearn.model_selection import train_test_split\nX, y = load_iris(return_X_y=True)",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.preprocessing import StandardScaler\nfrom sklearn.decomposition import PCA\npca = PCA(n_components=2).fit(StandardScaler().fit_transform(X))\npca.explained_variance_ratio_.round(3)",
+  "hint": "Scale first (<code>StandardScaler().fit_transform(X)</code>), then fit PCA.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-un-silhouette",
+  "lang": "py",
+  "skill": "unsup",
+  "level": 3,
+  "title": "Pick k by silhouette",
+  "body": "<p>Standardise the wine features. For k from 2 to 6, fit <code>KMeans(n_clusters=k, n_init=10, random_state=0)</code> and compute the silhouette score. Return the k with the highest score.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "from sklearn.datasets import load_wine\nX, y = load_wine(return_X_y=True)",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.preprocessing import StandardScaler\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import silhouette_score\nXs = StandardScaler().fit_transform(X)\nscores = {k: silhouette_score(Xs, KMeans(n_clusters=k, n_init=10, random_state=0).fit_predict(Xs)) for k in range(2, 7)}\nmax(scores, key=scores.get)",
+  "hint": "<code>silhouette_score(X, labels)</code>; higher is better.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-mfg-rate",
+  "lang": "py",
+  "skill": "mfg",
+  "level": 1,
+  "title": "Failure rate by machine",
+  "body": "<p><code>sensors</code> holds 600 sensor snapshots from four machines, with <code>failure</code> = 1 when the machine failed within the next shift. Return the failure rate (share of snapshots with a failure) for each <code>machine_id</code>, rounded to 3 decimals.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "rng = np.random.RandomState(7)\nn = 600\nsensors = pd.DataFrame({\n    'machine_id': rng.choice(['M1', 'M2', 'M3', 'M4'], n),\n    'temp': rng.normal(70, 5, n).round(1),\n    'vibration': rng.gamma(2.0, 0.5, n).round(3),\n    'pressure': rng.normal(30, 3, n).round(2),\n    'hours_since_service': rng.randint(0, 500, n),\n})\nrisk = (0.04 * (sensors['temp'] - 70) + 1.5 * (sensors['vibration'] - 1)\n        + 0.006 * (sensors['hours_since_service'] - 250)\n        + 0.5 * (sensors['machine_id'] == 'M3'))\nsensors['failure'] = (risk + rng.normal(0, 0.6, n) > 1.2).astype(int)\nFEATURES = ['temp', 'vibration', 'pressure', 'hours_since_service']",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "sensors.groupby('machine_id')['failure'].mean().round(3)",
+  "hint": "The mean of a 0/1 column is a rate.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": []
+ },
+ {
+  "id": "py-mfg-cpk",
+  "lang": "py",
+  "skill": "mfg",
+  "level": 1,
+  "title": "Process capability",
+  "body": "<p>Using all 125 shaft <code>diameter</code>s and the spec limits <code>LSL</code>, <code>USL</code>, compute Cp = (USL \u2212 LSL) / 6\u03c3 and Cpk = min(USL \u2212 \u03bc, \u03bc \u2212 LSL) / 3\u03c3, with \u03c3 the sample standard deviation. Return <code>(Cp, Cpk)</code>, each rounded to 3 decimals.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "rng = np.random.RandomState(3)\nshafts = pd.DataFrame({'subgroup': np.repeat(np.arange(1, 26), 5),\n                       'diameter': rng.normal(25.0, 0.012, 125).round(4)})\nshafts.loc[shafts['subgroup'].between(18, 20), 'diameter'] += 0.025   # a tool shift\nLSL, USL = 24.95, 25.05\nA2 = 0.577   # control chart constant for subgroups of 5",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "mu = shafts['diameter'].mean()\nsigma = shafts['diameter'].std()\ncp = (USL - LSL) / (6 * sigma)\ncpk = min(USL - mu, mu - LSL) / (3 * sigma)\n(round(cp, 3), round(cpk, 3))",
+  "hint": "pandas <code>.std()</code> is the sample standard deviation (ddof=1); numpy's <code>np.std</code> is not, by default.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": []
+ },
+ {
+  "id": "py-mfg-xbar",
+  "lang": "py",
+  "skill": "mfg",
+  "level": 2,
+  "title": "X-bar chart limits",
+  "body": "<p>For the shaft data (subgroups of 5), compute the subgroup means and ranges. The centre line is the mean of the subgroup means; the limits are CL \u00b1 A2 \u00d7 R\u0304, where R\u0304 is the mean range. Return <code>(LCL, CL, UCL)</code>, each rounded to 4 decimals.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "rng = np.random.RandomState(3)\nshafts = pd.DataFrame({'subgroup': np.repeat(np.arange(1, 26), 5),\n                       'diameter': rng.normal(25.0, 0.012, 125).round(4)})\nshafts.loc[shafts['subgroup'].between(18, 20), 'diameter'] += 0.025   # a tool shift\nLSL, USL = 24.95, 25.05\nA2 = 0.577   # control chart constant for subgroups of 5",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "g = shafts.groupby('subgroup')['diameter']\nmeans, ranges = g.mean(), g.max() - g.min()\ncl, rbar = means.mean(), ranges.mean()\n(round(cl - A2 * rbar, 4), round(cl, 4), round(cl + A2 * rbar, 4))",
+  "hint": "Group by subgroup; range is <code>max - min</code>.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": []
+ },
+ {
+  "id": "py-mfg-ooc",
+  "lang": "py",
+  "skill": "mfg",
+  "level": 2,
+  "title": "Out-of-control subgroups",
+  "body": "<p>Using the X-bar limits from the shaft data (CL \u00b1 A2 \u00d7 R\u0304), return a list of the subgroup numbers whose mean falls outside the limits, in order.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "rng = np.random.RandomState(3)\nshafts = pd.DataFrame({'subgroup': np.repeat(np.arange(1, 26), 5),\n                       'diameter': rng.normal(25.0, 0.012, 125).round(4)})\nshafts.loc[shafts['subgroup'].between(18, 20), 'diameter'] += 0.025   # a tool shift\nLSL, USL = 24.95, 25.05\nA2 = 0.577   # control chart constant for subgroups of 5",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "g = shafts.groupby('subgroup')['diameter']\nmeans, ranges = g.mean(), g.max() - g.min()\ncl, rbar = means.mean(), ranges.mean()\nmeans[(means > cl + A2 * rbar) | (means < cl - A2 * rbar)].index.tolist()",
+  "hint": "Compute the limits, then filter the means Series with a boolean mask and take its index.",
+  "check": "expr",
+  "ordered": true,
+  "src": "own",
+  "pkgs": []
+ },
+ {
+  "id": "py-mfg-spike",
+  "lang": "py",
+  "skill": "mfg",
+  "level": 2,
+  "title": "Detect temperature spikes",
+  "body": "<p><code>temps</code> is a 5-minute temperature series. Flag a reading as a spike when it exceeds the mean of the <b>previous</b> 12 readings plus 3 times their standard deviation. Return the number of spikes.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "rng = np.random.RandomState(11)\nidx = pd.date_range('2025-03-03 00:00', periods=288, freq='5min')\ntemps = pd.Series(70 + np.sin(np.arange(288) / 30) * 2 + rng.normal(0, 0.4, 288), index=idx).round(2)\ntemps.iloc[[60, 150, 151, 240]] += [6.0, 5.0, 4.5, 7.0]   # spikes",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "roll = temps.rolling(12)\nlimit = (roll.mean() + 3 * roll.std()).shift(1)\nint((temps > limit).sum())",
+  "hint": "<code>temps.rolling(12).mean()</code> includes the current reading; <code>.shift(1)</code> makes it use only earlier ones.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": []
+ },
+ {
+  "id": "py-mfg-pm",
+  "lang": "py",
+  "skill": "mfg",
+  "level": 2,
+  "title": "Predictive maintenance model",
+  "body": "<p>Train <code>RandomForestClassifier(n_estimators=200, random_state=0)</code> to predict <code>failure</code> from the four sensor features, using the split in the setup. Return the recall on the test set (the share of real failures the model catches), rounded to 3 decimals.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "rng = np.random.RandomState(7)\nn = 600\nsensors = pd.DataFrame({\n    'machine_id': rng.choice(['M1', 'M2', 'M3', 'M4'], n),\n    'temp': rng.normal(70, 5, n).round(1),\n    'vibration': rng.gamma(2.0, 0.5, n).round(3),\n    'pressure': rng.normal(30, 3, n).round(2),\n    'hours_since_service': rng.randint(0, 500, n),\n})\nrisk = (0.04 * (sensors['temp'] - 70) + 1.5 * (sensors['vibration'] - 1)\n        + 0.006 * (sensors['hours_since_service'] - 250)\n        + 0.5 * (sensors['machine_id'] == 'M3'))\nsensors['failure'] = (risk + rng.normal(0, 0.6, n) > 1.2).astype(int)\nFEATURES = ['temp', 'vibration', 'pressure', 'hours_since_service']\nfrom sklearn.model_selection import train_test_split\nX_train, X_test, y_train, y_test = train_test_split(\n    sensors[FEATURES], sensors['failure'], test_size=0.3, random_state=0, stratify=sensors['failure'])",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import recall_score\nrf = RandomForestClassifier(n_estimators=200, random_state=0).fit(X_train, y_train)\nround(recall_score(y_test, rf.predict(X_test)), 3)",
+  "hint": "Fit on <code>X_train, y_train</code>; <code>recall_score(y_test, predictions)</code>.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-mfg-balanced",
+  "lang": "py",
+  "skill": "mfg",
+  "level": 3,
+  "title": "Rare failures and class weights",
+  "body": "<p>Failures are rare, so a plain model can miss them. Fit two pipelines of <code>StandardScaler</code> and <code>LogisticRegression</code>: one default, one with <code>class_weight=\"balanced\"</code>. Return <code>(recall_default, recall_balanced)</code> on the test set, each rounded to 3 decimals.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "rng = np.random.RandomState(7)\nn = 600\nsensors = pd.DataFrame({\n    'machine_id': rng.choice(['M1', 'M2', 'M3', 'M4'], n),\n    'temp': rng.normal(70, 5, n).round(1),\n    'vibration': rng.gamma(2.0, 0.5, n).round(3),\n    'pressure': rng.normal(30, 3, n).round(2),\n    'hours_since_service': rng.randint(0, 500, n),\n})\nrisk = (0.04 * (sensors['temp'] - 70) + 1.5 * (sensors['vibration'] - 1)\n        + 0.006 * (sensors['hours_since_service'] - 250)\n        + 0.5 * (sensors['machine_id'] == 'M3'))\nsensors['failure'] = (risk + rng.normal(0, 0.6, n) > 1.2).astype(int)\nFEATURES = ['temp', 'vibration', 'pressure', 'hours_since_service']\nfrom sklearn.model_selection import train_test_split\nX_train, X_test, y_train, y_test = train_test_split(\n    sensors[FEATURES], sensors['failure'], test_size=0.3, random_state=0, stratify=sensors['failure'])",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import recall_score\nplain = make_pipeline(StandardScaler(), LogisticRegression()).fit(X_train, y_train)\nbal = make_pipeline(StandardScaler(), LogisticRegression(class_weight='balanced')).fit(X_train, y_train)\n(round(recall_score(y_test, plain.predict(X_test)), 3), round(recall_score(y_test, bal.predict(X_test)), 3))",
+  "hint": "<code>LogisticRegression(class_weight=\"balanced\")</code> reweights classes by their inverse frequency.",
+  "check": "expr",
+  "ordered": false,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-mfg-anomaly",
+  "lang": "py",
+  "skill": "mfg",
+  "level": 3,
+  "title": "Unsupervised anomaly detection",
+  "body": "<p>Fit <code>IsolationForest(contamination=0.02, random_state=0)</code> on <code>temp</code>, <code>vibration</code> and <code>pressure</code>. Return a list of the <code>sensors</code> index labels it flags as anomalies (prediction \u22121), in order.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "rng = np.random.RandomState(7)\nn = 600\nsensors = pd.DataFrame({\n    'machine_id': rng.choice(['M1', 'M2', 'M3', 'M4'], n),\n    'temp': rng.normal(70, 5, n).round(1),\n    'vibration': rng.gamma(2.0, 0.5, n).round(3),\n    'pressure': rng.normal(30, 3, n).round(2),\n    'hours_since_service': rng.randint(0, 500, n),\n})\nrisk = (0.04 * (sensors['temp'] - 70) + 1.5 * (sensors['vibration'] - 1)\n        + 0.006 * (sensors['hours_since_service'] - 250)\n        + 0.5 * (sensors['machine_id'] == 'M3'))\nsensors['failure'] = (risk + rng.normal(0, 0.6, n) > 1.2).astype(int)\nFEATURES = ['temp', 'vibration', 'pressure', 'hours_since_service']",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "from sklearn.ensemble import IsolationForest\ncols = ['temp', 'vibration', 'pressure']\npred = IsolationForest(contamination=0.02, random_state=0).fit_predict(sensors[cols])\nsensors.index[pred == -1].tolist()",
+  "hint": "<code>fit_predict</code> returns 1 for normal points and \u22121 for anomalies.",
+  "check": "expr",
+  "ordered": true,
+  "src": "own",
+  "pkgs": [
+   "scikit-learn"
+  ]
+ },
+ {
+  "id": "py-mfg-oee",
+  "lang": "py",
+  "skill": "mfg",
+  "level": 3,
+  "title": "Overall equipment effectiveness",
+  "body": "<p><code>oee_log</code> has three shifts per machine. Sum each machine's shifts first, then compute availability = (planned \u2212 downtime) / planned, performance = ideal_cycle_s \u00d7 total_count / (run minutes \u00d7 60), quality = good_count / total_count, and OEE = availability \u00d7 performance \u00d7 quality. Return OEE per machine as a Series rounded to 3 decimals, highest first.</p><p class=\"note\">End with an expression; the value of your last line is checked.</p>",
+  "setup": "oee_log = pd.DataFrame({\n    'machine': ['CNC1'] * 3 + ['CNC2'] * 3 + ['Press1'] * 3,\n    'planned_min': [480] * 9,\n    'downtime_min': [35, 50, 20, 90, 60, 75, 15, 25, 10],\n    'ideal_cycle_s': [30] * 6 + [12] * 3,\n    'total_count': [780, 760, 820, 640, 700, 650, 2100, 2050, 2180],\n    'good_count': [765, 741, 806, 610, 676, 630, 2080, 2021, 2166],\n})",
+  "starter": "# Write your code below. The value of your last line is checked.\n",
+  "solution": "m = oee_log.groupby('machine').agg(planned=('planned_min', 'sum'), down=('downtime_min', 'sum'),\n                                     cycle=('ideal_cycle_s', 'first'), total=('total_count', 'sum'), good=('good_count', 'sum'))\nrun = m['planned'] - m['down']\noee = (run / m['planned']) * (m['cycle'] * m['total'] / (run * 60)) * (m['good'] / m['total'])\noee.round(3).sort_values(ascending=False)",
+  "hint": "Aggregate with <code>groupby().agg()</code> first; the ideal cycle time is constant per machine.",
+  "check": "expr",
+  "ordered": true,
+  "src": "own",
+  "pkgs": []
+ }
+]

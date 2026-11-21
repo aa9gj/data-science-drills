@@ -1,0 +1,57 @@
+<header class="top">
+  <div class="brand"><h1>Data Science Drills</h1><span>Adaptive SQL, Python, R and SAS practice</span></div>
+  <div class="toprow">
+    <div class="progress" id="progress"></div>
+    <button class="ghost" type="button" id="settingsBtn" hidden aria-expanded="false" aria-controls="settings">Claude checking: off</button>
+  </div>
+</header>
+
+<section class="settings" id="settings" hidden aria-label="Claude checking settings">
+  <div>
+    <h2>Claude checking for SAS, and new problems</h2>
+    <p>SQL, Python and R answers are checked by running your code in this browser. SAS can't run in a browser, so by default you compare your answer with the solution yourself. Add an Anthropic API key to let Claude read your SAS (and any R or Python that can't run here), predict its output and grade it, and to write new problems when a skill runs out.</p>
+    <p class="note">The key is saved in this browser's local storage and sent only to <code>api.anthropic.com</code>. Requests use Claude Opus 5.5 and are billed to your Anthropic account. Get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>.</p>
+  </div>
+  <form id="keyForm" class="keyrow">
+    <label for="apiKey">Anthropic API key</label>
+    <input id="apiKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-...">
+    <button class="submit" type="submit">Save key</button>
+    <button class="ghost" type="button" id="clearKey">Remove key</button>
+    <span class="note" id="keyStatus"></span>
+  </form>
+</section>
+
+<div class="app">
+  <nav class="side" aria-label="Skills">
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="sidehead"><span>Your path</span><span>level</span></div>
+    <ul class="skills" id="skills"></ul>
+  </nav>
+
+  <section class="brief" id="brief" aria-live="polite"></section>
+
+  <section class="work">
+    <div class="bar">
+      <span class="file" id="fileName">query.sql</span>
+      <div class="btns">
+        <button class="ghost" id="resetBtn" type="button">Reset code</button>
+        <button class="run" id="runBtn" type="button">Run</button>
+        <button class="submit" id="submitBtn" type="button">Submit</button>
+      </div>
+    </div>
+    <textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Code editor"></textarea>
+    <div class="console">
+      <div class="label"><span>Console</span><span class="kbd">Ctrl/⌘+Enter runs · Shift+Ctrl/⌘+Enter submits</span></div>
+      <div id="console"></div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <p>Questions adapted from open sources, with thanks:
+  SQL from <a href="https://pgexercises.com" target="_blank" rel="noopener">PostgreSQL Exercises</a> by Alisdair Owens (CC BY-SA 3.0), ported to SQLite;
+  pandas from <a href="https://github.com/ajcr/100-pandas-puzzles" target="_blank" rel="noopener">100 pandas puzzles</a> by Alex Riley (MIT);
+  R from The Carpentries' <a href="https://swcarpentry.github.io/r-novice-gapminder/" target="_blank" rel="noopener">R for Reproducible Scientific Analysis</a> (CC BY 4.0), with gapminder data from <a href="https://www.gapminder.org" target="_blank" rel="noopener">Gapminder</a>;
+  SAS from SAS Institute's <a href="https://github.com/sascommunities/sas-prog-for-r-users" target="_blank" rel="noopener">SAS Programming for R Users</a> (CC BY 4.0).
+  Problems marked "original" are new. Runs on <a href="https://sql.js.org" target="_blank" rel="noopener">sql.js</a>, <a href="https://pyodide.org" target="_blank" rel="noopener">Pyodide</a> and <a href="https://docs.r-wasm.org/webr/latest/" target="_blank" rel="noopener">webR</a>. Progress is saved in this browser only.</p>
+</footer>
