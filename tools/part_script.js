@@ -33,7 +33,7 @@ const store = {
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}},
   del(k){try{localStorage.removeItem(k)}catch{}}
 };
-const S = Object.assign({solved:{},fails:{},used:{},level:{},done:{},gen:[],cur:{},lang:"sql"}, store.get("cd2.state",{}));
+const S = Object.assign({solved:{},fails:{},used:{},level:{},done:{},gen:[],cur:{},lang:"sql",mix:null}, store.get("cd2.state",{}));
 const drafts = store.get("cd2.drafts",{});
 const save = ()=>store.set("cd2.state",S);
 const all = ()=>BANK.concat(S.gen);
@@ -69,6 +69,7 @@ function easierThan(p){
 }
 function onPass(p){
   const k=key(p.lang,p.skill), clean=!S.fails[p.id] && !S.used[p.id];
+  mixRecord(p, true);
   if (S.solved[p.id]) return "";
   S.solved[p.id] = S.used[p.id]==="solution" ? "shown" : (clean ? "clean" : "retry");
   let msg="";
@@ -84,11 +85,77 @@ function onPass(p){
 }
 function onMiss(p, kind){ // kind: 'fail' | 'solution'
   const k=key(p.lang,p.skill), first=!S.fails[p.id] && !S.used[p.id];
+  mixRecord(p, false);
   if (kind==="fail") S.fails[p.id]=(S.fails[p.id]||0)+1; else S.used[p.id]="solution";
   let msg="";
   if (first && !S.solved[p.id] && p.level>1 && levelOf(p.lang,p.skill)>=p.level){ S.level[k]=p.level-1; msg=`Your ${skillName(p.lang,p.skill)} level drops to ${p.level-1} for now. Solve this one or the easier question to climb back.`; }
   save(); return msg;
 }
+
+
+/* ================= Mixed practice ================= */
+// A session of MIX_SIZE problems interleaved across skills (one language or all of them). Each skill still uses
+// the learner's own level; weights favour unmastered and lower-level skills, and the last skill is rarely repeated.
+const MIX_SIZE = 10;
+const mixOn = ()=> !!(S.mix && S.mix.active);
+const mixLangs = ()=> S.mix.scope==="all" ? Object.keys(LANGS) : [S.mix.lang];
+function mixPick(exclude){
+  const seen = new Set(S.mix.seen), langs = mixLangs();
+  const last = S.mix.seen.length ? byId(S.mix.seen[S.mix.seen.length-1]) : null;
+  let cands = [];
+  for (const lang of langs) for (const [sk] of SKILLS[lang]) {
+    const p = recommendIn(lang, sk, exclude); if (!p || seen.has(p.id)) continue;
+    let w = S.done[key(lang,sk)] ? 0.5 : 1 + (3 - levelOf(lang,sk)) * 0.5;
+    if (last && last.lang===lang && last.skill===sk) w *= 0.15;
+    cands.push({p, w});
+  }
+  if (!cands.length) // everything solved: review problems that needed more than one try or the solution
+    cands = all().filter(p=>langs.includes(p.lang) && !seen.has(p.id) && p.id!==exclude && (S.fails[p.id] || S.used[p.id]==="solution")).map(p=>({p, w:1}));
+  if (!cands.length) return null;
+  let r = Math.random() * cands.reduce((t,c)=>t+c.w, 0);
+  for (const c of cands){ r -= c.w; if (r <= 0) return {p:c.p}; }
+  return {p:cands[cands.length-1].p};
+}
+function startMix(scope){
+  S.mix = {active:true, scope, lang:S.lang, seen:[], results:{}};
+  const rec = mixPick();
+  if (!rec){ S.mix=null; save(); renderMix(); setConsole(infoHTML("Nothing left to mix", "You've solved every problem here. Ask Claude for new ones from any skill.")); return; }
+  openProblem(rec.p.id, "", true);
+}
+function endMix(){ if (S.mix) S.mix.active=false; save(); }
+function mixRecord(p, passed){
+  if (!mixOn() || !S.mix.seen.includes(p.id)) return;
+  const r = S.mix.results[p.id];
+  if (passed) { if (!r) S.mix.results[p.id]="first"; else if (r==="missed") S.mix.results[p.id]="later"; }
+  else if (!r) S.mix.results[p.id]="missed";
+  save();
+}
+function mixSummary(){
+  const ids=S.mix.seen, res=S.mix.results;
+  const first=ids.filter(i=>res[i]==="first").length, later=ids.filter(i=>res[i]==="later").length, open=ids.length-first-later;
+  const rows = ids.map(i=>{ const p=byId(i); if(!p) return ""; const r=res[i];
+    const mark = r==="first" ? '<span class="ok">✓ first try</span>' : (r==="later" ? '<span class="ok">✓ after a retry</span>' : '<span class="bad">✕ not solved</span>');
+    return `<tr><td>${LANGS[p.lang].label}</td><td>${esc(skillName(p.lang,p.skill))}</td><td>L${p.level}</td><td>${esc(p.title)}</td><td>${mark}</td></tr>`; }).join("");
+  const scopeText = S.mix.scope==="all" ? "all languages" : `${LANGS[S.mix.lang].label} skills`;
+  return `<div class="verdict info" role="status"><span>★</span><div><strong>Mixed practice: ${first} of ${ids.length} on the first try</strong><div class="fb">${later} more solved after a retry, ${open} still open. Your skill levels were updated as you went.</div></div></div>
+    <div class="tbl-wrap"><table class="res"><thead><tr><th>Language</th><th>Skill</th><th>Level</th><th>Problem</th><th>Result</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="nextrow"><button type="button" class="go" data-mixstart="${S.mix.scope}">Start another session<small>${MIX_SIZE} problems across ${scopeText}</small></button><button type="button" class="go alt" data-endmix="1">Back to my path<small>One skill at a time</small></button></div>`;
+}
+function showMixSummary(){ if (!S.mix) return; const h=mixSummary(); endMix(); renderMix(); const n=$("mixnote"); if(n) n.remove(); setConsole(h); }
+function renderMix(){
+  const box=$("mixbar"); if(!box) return;
+  if (mixOn()){
+    const n=S.mix.seen.length;
+    box.innerHTML = `<div class="mixon"><strong>Mixed practice</strong><span>${S.mix.scope==="all"?"All languages":LANGS[S.mix.lang].label} · problem ${Math.min(n,MIX_SIZE)} of ${MIX_SIZE}</span><button class="ghost" type="button" data-mixsum="1">End session</button></div>`;
+  } else {
+    box.innerHTML = `<div class="mixrow"><button class="mixbtn" type="button" data-mixstart="lang">Mixed practice: ${LANGS[S.lang].label}</button><button class="mixbtn alt" type="button" data-mixstart="all">All languages</button></div><p class="mixhelp">${MIX_SIZE} problems that switch between skills, weighted toward the ones you haven't mastered.</p>`;
+  }
+}
+document.addEventListener("click", ev=>{
+  const st=ev.target.closest("[data-mixstart]"); if (st){ startMix(st.dataset.mixstart); return; }
+  if (ev.target.closest("[data-mixsum]")){ showMixSummary(); return; }
+  if (ev.target.closest("[data-endmix]")){ endMix(); renderAll(); return; }
+});
 
 /* ================= How each problem is checked here ================= */
 let pyBroken=false, rBroken=false, claudeOff=false;
@@ -189,7 +256,8 @@ function renderBrief(){
   const p=current, b=$("brief"); b.style.setProperty("--lang",lv(p.lang));
   const st=S.solved[p.id];
   const explain = p.explain && (st || S.used[p.id]==="solution") ? `<details class="explain"><summary>Explanation</summary>${p.explain}</details>` : "";
-  b.innerHTML = `<div class="adapt" id="adapt" ${adaptNote?"":"hidden"}><span>↺</span><span>${esc(adaptNote)}</span></div>
+  const mixNote = mixOn() ? `<div class="mixnote" id="mixnote"><span>Mixed practice · problem ${S.mix.seen.indexOf(p.id)+1} of ${MIX_SIZE}</span><button class="ghost" type="button" data-mixsum="1">End session</button></div>` : "";
+  b.innerHTML = `${mixNote}<div class="adapt" id="adapt" ${adaptNote?"":"hidden"}><span>↺</span><span>${esc(adaptNote)}</span></div>
     <div class="eyebrow">${LANGS[p.lang].label} · ${esc(skillName(p.lang,p.skill))} · Level ${p.level} ${LEVEL_NAME[p.level]}</div>
     <h2>${esc(p.title)}${st?'<span class="tag">Solved</span>':""}</h2>
     ${p.src==="gen"?md(p.body):p.body}
@@ -217,10 +285,11 @@ function renderWork(){
   $("submitBtn").textContent = c==="ai" ? "Check with Claude" : (c==="self" ? "Compare with solution" : "Submit");
   consoleEl.innerHTML = `<p class="out muted">${esc(introText(p))}</p>`;
 }
-function renderAll(){ renderProgress(); renderTabs(); renderSkills(); renderBrief(); renderWork(); renderSettingsBtn(); }
+function renderAll(){ renderProgress(); renderTabs(); renderMix(); renderSkills(); renderBrief(); renderWork(); renderSettingsBtn(); }
 
-function openProblem(id, note){
+function openProblem(id, note, viaMix){
   const p=byId(id); if(!p) return;
+  if (mixOn()) { if (viaMix) { if (!S.mix.seen.includes(id)) S.mix.seen.push(id); } else S.mix.active=false; }
   current=p; S.lang=p.lang; S.cur[p.lang]=p.id; adaptNote=note||""; save(); renderAll();
 }
 function openRec(rec, note){ if (rec.p) openProblem(rec.p.id, note); else generate(rec.gen, note); }
@@ -277,7 +346,7 @@ consoleEl.addEventListener("click",ev=>{
     renderSkills(); renderProgress(); if(ok) markSolvedUI(); return; }
   const b=ev.target.closest("[data-go]"); if(!b) return;
   const rec=JSON.parse(b.dataset.go);
-  if (rec.id) openProblem(rec.id, b.dataset.note||""); else generate(rec, b.dataset.note||"");
+  if (rec.id) openProblem(rec.id, b.dataset.note||"", !!rec.mix); else generate(rec, b.dataset.note||"");
 });
 let saveT; function saveDraft(){ clearTimeout(saveT); const id=current.id; saveT=setTimeout(()=>{drafts[id]=editor.value; store.set("cd2.drafts",drafts)},300); }
 editor.addEventListener("input",saveDraft);
@@ -299,12 +368,22 @@ function describe(rec){
   if (rec.p) return `Level ${rec.p.level} · ${skillName(rec.p.lang,rec.p.skill)}: ${rec.p.title}`;
   return `New Level ${rec.gen.level} ${skillName(rec.gen.lang,rec.gen.skill)} problem from Claude`;
 }
-function goBtn(rec, label, note){
-  const payload = rec.p ? {id:rec.p.id} : rec.gen;
+function goBtn(rec, label, note, mix){
+  const payload = Object.assign(rec.p ? {id:rec.p.id} : {...rec.gen}, mix ? {mix:true} : {});
   return `<button type="button" class="go" data-go='${esc(JSON.stringify(payload))}' data-note="${esc(note||"")}">${esc(label)}<small>${esc(describe(rec))}</small></button>`;
 }
 function afterResult(p, pass, levelMsg){
   const lm = levelMsg?`<p class="note">${esc(levelMsg)}</p>`:"";
+  if (mixOn()) {
+    const full = S.mix.seen.length >= MIX_SIZE;
+    if (pass) {
+      if (full) return lm + `<div class="nextrow"><button type="button" class="go" data-mixsum="1">See your results →<small>Mixed practice complete</small></button></div>`;
+      const rec = mixPick(p.id);
+      return `${lm}<div class="nextrow">${rec ? goBtn(rec,"Next mixed problem →","",true) : ""}<button type="button" class="go alt" data-mixsum="1">End session<small>See your results</small></button></div>`;
+    }
+    const easy = easierThan(p), skip = full ? null : mixPick(p.id);
+    return `${lm}<div class="nextrow"><button type="button" class="go alt" data-focus="1">Try again<small>Fix your code and submit</small></button>${goBtn(easy,"Easier question →",`Easier question on ${skillName(p.lang,p.skill)} within your mixed session.`,true)}${skip ? goBtn(skip,"Skip →","",true) : `<button type="button" class="go alt" data-mixsum="1">Finish<small>See your results</small></button>`}</div>`;
+  }
   if (pass){
     const rec = recommend(p.lang, S.done[key(p.lang,p.skill)] ? null : p.skill, p.id);
     return `${lm}<div class="nextrow">${goBtn(rec,"Next problem →","")}</div>`;
@@ -695,7 +774,7 @@ ${lang==="sql"?"The solution must be a single SELECT that runs on SQLite and ret
     if (lang==="r"){ p.setup=String(g.setup||""); p.rcheck=/^(last|output|var:[\w.]+)$/.test(g.check||"")?g.check:"last";
       if(!IN_CLAUDE && !rBroken){ const [,err]=await rCall(".drill_run(.dc_code, .dc_setup)", {".dc_code":p.solution, ".dc_setup":p.setup}); if(err) throw new Error("its solution raised an error in R"); } }
     S.gen.push(p); save();
-    openProblem(p.id, note || (easier ? `Here's an easier problem on ${skillName(lang,skill)}.` : "A new problem written by Claude for your current level."));
+    openProblem(p.id, note || (easier ? `Here's an easier problem on ${skillName(lang,skill)}.` : "A new problem written by Claude for your current level."), !!spec.mix);
   }catch(e){
     if (e instanceof Error) setConsole(verdictHTML(false,"That problem didn't pass its own check",`Claude's problem was thrown away because ${esc(e.message)}. Try again for a new one.`)+`<div class="nextrow"><button type="button" class="go" data-go='${esc(JSON.stringify(spec))}'>Try again<small>New Level ${level} problem</small></button></div>`);
     else setConsole(claudeErr(e));
@@ -704,6 +783,7 @@ ${lang==="sql"?"The solution must be a single SELECT that runs on SQLite and ret
 
 /* ================= Boot ================= */
 (function boot(){
+  if (mixOn() && S.mix.seen.length && byId(S.mix.seen[S.mix.seen.length-1])) return openProblem(S.mix.seen[S.mix.seen.length-1], "", true);
   const id = S.cur[S.lang];
   if (id && byId(id)) openProblem(id); else openRec(recommend(S.lang));
 })();

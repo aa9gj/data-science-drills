@@ -1,6 +1,6 @@
 # Data Science Drills
 
-Adaptive coding practice for data science in **SQL, Python, R and SAS**, in a single web page. You write real code and it is checked in your browser. The difficulty adjusts to how you're doing: a mistake gets you an easier question, and a clean solve moves you up a level.
+Adaptive coding practice for data science in **SQL, Python, R and SAS**, in a single web page. You write real code and it is checked in your browser. The difficulty adjusts to how you're doing: a mistake gets you an easier question, and a clean solve moves you up a level. Practise one skill at a time, or take a mixed session across skills and languages.
 
 **Try it:** https://aa9gj.github.io/data-science-drills/
 
@@ -32,6 +32,16 @@ Some examples of the harder material:
 - **A wrong answer or showing the solution** drops that skill a level. The **Easier question** button gives you an unsolved problem one level down in the same skill.
 - **Next problem** picks the next unsolved problem at your level, and moves on to the next skill once you've mastered one.
 - Hints, full solutions and, for the SQL set, the original author's explanations are always available.
+
+### Mixed practice
+
+Practising one skill at a time is good for learning a technique; mixing skills is better for remembering when to use which one. **Mixed practice** in the sidebar starts a 10-problem session that switches between skills, within the current language or across **all languages**:
+
+- Each problem comes from a different skill than the one before, at your current level for that skill.
+- Skills you haven't mastered and skills where your level is lower come up more often.
+- Mistakes work the same way as in normal practice: try again, take an easier question in the same skill, or skip. Your skill levels keep updating.
+- At the end you get a summary of what you solved on the first try, after a retry, or not yet, by language and skill.
+- Once everything in your scope is solved, mixed practice brings back problems that needed more than one try or the solution.
 
 ## Optional: Claude checking
 

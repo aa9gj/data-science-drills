@@ -18,6 +18,17 @@ extra = """
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 select.ghost{padding:6px 8px;background:var(--panel)}
 footer p{margin:0}
+.mixbar{margin:0 0 10px}
+.mixrow{display:grid;grid-template-columns:1fr auto;gap:4px}
+.mixbtn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg);border-radius:6px;padding:7px 8px;font-weight:600;font-size:.84rem;text-align:left}
+.mixbtn.alt{background:var(--panel);color:var(--accent)}
+.mixhelp{margin:6px 2px 0;font-size:.76rem;color:var(--muted)}
+.mixon{display:grid;gap:4px;padding:8px 10px;border:1px solid var(--accent);border-radius:8px}
+.mixon span{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.mixon .ghost{justify-self:start;padding:4px 9px;font-size:.8rem}
+.mixnote{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:7px 10px;margin-bottom:12px;border-radius:8px;background:var(--sunk);font:600 .78rem var(--mono);color:var(--accent);font-variant-numeric:tabular-nums}
+.mixnote .ghost{padding:3px 9px;font:inherit;font-weight:500;font-size:.78rem}
+.ok{color:var(--pass)} .bad{color:var(--fail)}
 """
 harness = t[t.index('const PY_HARNESS = String.raw`') + len('const PY_HARNESS = String.raw`'):]
 harness = harness[:harness.index('\n`;')]
